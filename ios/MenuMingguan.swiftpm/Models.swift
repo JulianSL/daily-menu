@@ -118,12 +118,21 @@ struct DraftDay: Identifiable, Equatable {
     var kidMenuId: String
 }
 
+/// One menu that uses a shopping item (shown when the item is expanded).
+struct ShoppingUsage: Hashable {
+    let day: String
+    let dish: String
+    let role: String   // Utama | Pendamping | Anak
+    let qty: String
+}
+
 struct ShoppingItem: Identifiable {
     let id: String
     let name: String
     let qty: String
     let use: String
     let pantry: Bool
+    let usages: [ShoppingUsage]
 }
 
 struct ShoppingCategory: Identifiable {

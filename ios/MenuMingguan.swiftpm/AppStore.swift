@@ -101,6 +101,16 @@ final class AppStore: ObservableObject {
         draft[i].sideId = uniqueSide(m.defaultSideId, used: usedSides)
     }
 
+    /// Swap only the side dish for day `i`, avoiding sides already used this week.
+    func rerollSide(_ i: Int) {
+        let all = catalog.data.menus.sides.map(\.id)
+        let used = draft.map(\.sideId)
+        let fresh = all.filter { !used.contains($0) }
+        if let next = (fresh.isEmpty ? all.filter { $0 != draft[i].sideId } : fresh).randomElement() {
+            draft[i].sideId = next
+        }
+    }
+
     func rerollKid(_ i: Int) {
         var used = draft.enumerated().filter { $0.offset != i && !isKidFriendly($0.element.mainId) }.map(\.element.kidMenuId)
         used.append(draft[i].kidMenuId)
@@ -136,16 +146,22 @@ final class AppStore: ObservableObject {
     // MARK: Shopping list
 
     func shopping(for days: [DayPlan]) -> [ShoppingCategory] {
-        struct Acc { var qty = 0.0; var hasQty = false; var uses: [String] = [] }
+        struct Acc { var qty = 0.0; var hasQty = false; var uses: [String] = []; var usages: [ShoppingUsage] = [] }
         var acc: [String: Acc] = [:]
         for (i, d) in days.enumerated() {
-            let parts: [(String?, String)] = [(d.mainId, Fmt.dayLabel[i]), (d.sideId, Fmt.dayLabel[i]), (d.kidId, "Anak " + Fmt.dayLabel[i])]
-            for (rid, label) in parts {
+            let parts: [(String?, String, String)] = [
+                (d.mainId, Fmt.dayLabel[i], "Utama"),
+                (d.sideId, Fmt.dayLabel[i], "Pendamping"),
+                (d.kidId, "Anak " + Fmt.dayLabel[i], "Anak")
+            ]
+            for (rid, label, role) in parts {
                 guard let rid, let r = catalog.recipe(rid) else { continue }
-                for ing in r.ingredients where catalog.ingredients[ing.id] != nil {
+                for ing in r.ingredients {
+                    guard let info = catalog.ingredients[ing.id] else { continue }
                     var a = acc[ing.id] ?? Acc()
                     if let q = ing.qty { a.qty += q; a.hasQty = true }
                     if !a.uses.contains(label) { a.uses.append(label) }
+                    a.usages.append(ShoppingUsage(day: Fmt.dayNames[i], dish: r.name, role: role, qty: Fmt.qty(ing.qty, unit: info.unit)))
                     acc[ing.id] = a
                 }
             }
@@ -158,7 +174,8 @@ final class AppStore: ObservableObject {
                     name: ing.name,
                     qty: a.hasQty ? Fmt.qty(a.qty, unit: ing.unit) : "secukupnya",
                     use: a.uses.count >= 6 ? "hampir semua menu" : a.uses.joined(separator: ", "),
-                    pantry: ing.pantry ?? false
+                    pantry: ing.pantry ?? false,
+                    usages: a.usages
                 )
             }.sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
             return ShoppingCategory(id: cat.id, label: cat.label, items: items)

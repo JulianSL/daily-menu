@@ -132,18 +132,32 @@ struct PickStep: View {
                             }
                             .accessibilityLabel("Acak ulang menu \(Fmt.dayNames[i])")
                         }
-                        Button { store.toggleKidFriendly(d.mainId) } label: {
-                            Label(kid ? "Ramah anak ✓" : "Tandai ramah anak", systemImage: "face.smiling")
-                                .font(.caption.weight(.bold))
-                                .padding(.horizontal, 10).frame(height: 30)
-                                .foregroundStyle(kid ? Theme.kid : Theme.muted)
-                                .background(kid ? Theme.kidSoft : .white, in: Capsule())
-                                .overlay(Capsule().stroke(kid ? Theme.kid : Color(hex: 0xCFC7B9), style: StrokeStyle(lineWidth: 1.5, dash: kid ? [] : [4, 3])))
-                                .frame(height: 44)
+                        HStack(spacing: 8) {
+                            Button { store.toggleKidFriendly(d.mainId) } label: {
+                                Label(kid ? "Ramah anak ✓" : "Ramah anak?", systemImage: "face.smiling")
+                                    .font(.caption.weight(.bold))
+                                    .padding(.horizontal, 10).frame(height: 30)
+                                    .foregroundStyle(kid ? Theme.kid : Theme.muted)
+                                    .background(kid ? Theme.kidSoft : .white, in: Capsule())
+                                    .overlay(Capsule().stroke(kid ? Theme.kid : Color(hex: 0xCFC7B9), style: StrokeStyle(lineWidth: 1.5, dash: kid ? [] : [4, 3])))
+                                    .frame(height: 44)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(kid ? .isSelected : [])
+
+                            Button { store.rerollSide(i) } label: {
+                                Label("Ganti pendamping", systemImage: "arrow.clockwise")
+                                    .font(.caption.weight(.bold))
+                                    .padding(.horizontal, 10).frame(height: 30)
+                                    .foregroundStyle(Theme.accent)
+                                    .background(.white, in: Capsule())
+                                    .overlay(Capsule().stroke(Theme.line, lineWidth: 1.5))
+                                    .frame(height: 44)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Ganti pendamping untuk \(m?.name ?? ""), sekarang \(catalog.name(d.sideId))")
                         }
-                        .buttonStyle(.plain)
                         .padding(.leading, 53)
-                        .accessibilityAddTraits(kid ? .isSelected : [])
                     }
                     .padding(.top, 10).padding(.leading, 12).padding(.trailing, 8).padding(.bottom, 2)
                     .card()

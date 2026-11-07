@@ -59,6 +59,7 @@
     detailTab: 'main',
     shopHide: false,
     favQuery: '',
+    expanded: {},         // "scope:ingredientId" -> accordion open in a shopping list
     toast: null
   };
 
@@ -184,6 +185,14 @@
     used.push(days[i].kidMenuId);
     days[i] = Object.assign({}, days[i], { kidMenuId: freshKid(used) });
   }
+  function rerollSide(days, i) {
+    // Swap only the side dish: never the current one, never one already used this week.
+    const used = days.map((d) => d.sideId);
+    const pool = SIDES.map((s) => s.id).filter((id) => !used.includes(id));
+    const fallback = SIDES.map((s) => s.id).filter((id) => id !== days[i].sideId);
+    const next = pick(pool.length ? pool : fallback);
+    if (next) days[i] = Object.assign({}, days[i], { sideId: next });
+  }
   const kidIdFor = (d) => (isKidOk(d.mainId) ? null : d.kidMenuId);
 
   // ---------- Shopping list ----------
@@ -191,14 +200,20 @@
     const map = {};
     days.forEach((d, i) => {
       const parts = [[d.mainId, DAY_LABEL[i]], [d.sideId, DAY_LABEL[i]], [d.kidId, 'Anak ' + DAY_LABEL[i]]];
-      parts.forEach(([rid, label]) => {
+      parts.forEach(([rid, label], p) => {
         const r = rid && R[rid];
         if (!r) return;
         r.ingredients.forEach((ing) => {
           if (!ING[ing.id]) return;
-          const e = map[ing.id] || (map[ing.id] = { id: ing.id, qty: 0, hasQty: false, uses: [] });
+          const e = map[ing.id] || (map[ing.id] = { id: ing.id, qty: 0, hasQty: false, uses: [], details: [] });
           if (typeof ing.qty === 'number') { e.qty += ing.qty; e.hasQty = true; }
           if (!e.uses.includes(label)) e.uses.push(label);
+          e.details.push({
+            day: DAY_NAMES[i],
+            dish: r.name,
+            role: p === 0 ? 'Utama' : p === 1 ? 'Pendamping' : 'Anak',
+            qty: fmtQty(typeof ing.qty === 'number' ? ing.qty : null, ING[ing.id].unit)
+          });
         });
       });
     });
@@ -210,7 +225,8 @@
           name: ING[e.id].name,
           pantry: !!ING[e.id].pantry,
           qty: e.hasQty ? fmtQty(e.qty, ING[e.id].unit) : 'secukupnya',
-          use: e.uses.length >= 6 ? 'hampir semua menu' : e.uses.join(', ')
+          use: e.uses.length >= 6 ? 'hampir semua menu' : e.uses.join(', '),
+          details: e.details
         }))
         .sort((a, b) => a.name.localeCompare(b.name, 'id'));
       return Object.assign({}, c, { items });
@@ -378,11 +394,20 @@
       const list = rows.length
         ? `<div class="card check-list"><div>${rows.map((it) => {
             const on = !!checkedMap[it.id];
-            return `<label class="check-item ${on ? 'checked' : ''}">
-              <input type="checkbox" data-act="${act}" data-id="${it.id}" ${on ? 'checked' : ''}>
-              <span class="nm"><b>${esc(it.name)}${it.pantry ? '<span class="pantry-tag">stok dapur</span>' : ''}</b><small>untuk ${esc(it.use)}</small></span>
-              <span class="qty">${esc(it.qty)}</span>
-            </label>`;
+            const key = scrollKey + ':' + it.id;
+            const open = !!ui.expanded[key];
+            const details = open ? `<ul class="usage" id="use-${esc(key)}">${it.details.map((u) =>
+              `<li><span class="u-day">${u.day}</span><span class="u-dish">${esc(u.dish)}<small class="${u.role === 'Anak' ? 'kid' : ''}">${u.role}</small></span><span class="u-qty">${esc(u.qty)}</span></li>`).join('')}</ul>` : '';
+            return `<div class="check-item ${on ? 'checked' : ''} ${open ? 'open' : ''}">
+              <div class="ci-row">
+                <label class="ci-box"><input type="checkbox" data-act="${act}" data-id="${it.id}" ${on ? 'checked' : ''}><span class="sr-only">${act === 'toggle-have' ? 'Sudah ada' : 'Sudah dibeli'}: ${esc(it.name)}</span></label>
+                <button type="button" class="ci-toggle" data-act="expand" data-key="${esc(key)}" aria-expanded="${open}" aria-controls="use-${esc(key)}">
+                  <span class="nm"><b>${esc(it.name)}${it.pantry ? '<span class="pantry-tag">stok dapur</span>' : ''}</b><small>untuk ${esc(it.use)}</small></span>
+                  <span class="qty">${esc(it.qty)}</span>
+                  <span class="chev" aria-hidden="true">${icon('down', 16, 'stroke-width="2.4"')}</span>
+                </button>
+              </div>${details}
+            </div>`;
           }).join('')}</div></div>`
         : `<p class="empty-cat">Semua ${c.label.toLowerCase()} sudah ${act === 'toggle-have' ? 'ada' : 'dibeli'}</p>`;
       return `<section class="cat" id="${scrollKey}-${c.id}">
@@ -560,7 +585,10 @@
     if (sh.step === 1) { body = sheetStep1(); foot = `<button type="button" class="btn primary grow" data-act="sheet-next">Cocok, lanjut ke belanja ${icon('right', 18)}</button>`; }
     if (sh.step === 2) { body = sheetStep2(); foot = `<button type="button" class="btn secondary" data-act="sheet-back">Kembali</button><button type="button" class="btn primary grow" data-act="sheet-next">Lanjut ke konfirmasi ${icon('right', 18)}</button>`; }
     if (sh.step === 3) { body = sheetStep3(); foot = `<button type="button" class="btn secondary" data-act="sheet-back">Kembali</button><button type="button" class="btn primary grow" data-act="confirm">${icon('check', 18, 'stroke-width="2.5"')}Konfirmasi Menu</button>`; }
-    return `<div class="sheet-wrap"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    // Animate only on the first render after opening, not on every tap inside the sheet.
+    const anim = sh.fresh ? ' anim' : '';
+    sh.fresh = false;
+    return `<div class="sheet-wrap${anim}"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
       ${head}${body}<div class="sheet-foot">${foot}</div></section></div>`;
   }
 
@@ -585,9 +613,14 @@
           </span>
           <button type="button" class="icon-btn soft" data-act="reroll" data-i="${i}" aria-label="Acak ulang menu ${DAY_NAMES[i]}">${icon('refresh')}</button>
         </div>
-        <button type="button" class="kid-toggle" data-act="kid-toggle" data-id="${m.id}" aria-pressed="${kid}" aria-label="${kid ? 'Ramah anak, ketuk untuk batalkan' : 'Tandai ramah anak'}: ${esc(m.name)}">
-          <span>${icon('kid', 16)}${kid ? 'Ramah anak ✓' : 'Tandai ramah anak'}</span>
-        </button>
+        <div class="chip-row">
+          <button type="button" class="kid-toggle" data-act="kid-toggle" data-id="${m.id}" aria-pressed="${kid}" aria-label="${kid ? 'Ramah anak, ketuk untuk batalkan' : 'Tandai ramah anak'}: ${esc(m.name)}">
+            <span>${icon('kid', 16)}${kid ? 'Ramah anak ✓' : 'Ramah anak?'}</span>
+          </button>
+          <button type="button" class="side-btn" data-act="reroll-side" data-i="${i}" aria-label="Ganti pendamping untuk ${esc(m.name)}, sekarang ${esc(nameOf(d.sideId))}">
+            <span>${icon('refresh', 14)}Ganti pendamping</span>
+          </button>
+        </div>
       </li>`;
     }).join('');
     const kids = days.map((d, i) => {
@@ -664,7 +697,7 @@
 
   // ---------- Actions ----------
   function openSheet() {
-    ui.sheet = { step: 1, weekStart: iso(upcomingMonday()), days: generateDays(), have: {} };
+    ui.sheet = { step: 1, weekStart: iso(upcomingMonday()), days: generateDays(), have: {}, fresh: true };
     render();
   }
 
@@ -688,6 +721,8 @@
     },
     'reroll': (el) => { rerollDay(ui.sheet.days, +el.dataset.i); render(); },
     'reroll-kid': (el) => { rerollKid(ui.sheet.days, +el.dataset.i); render(); },
+    'reroll-side': (el) => { rerollSide(ui.sheet.days, +el.dataset.i); render(); },
+    'expand': (el) => { const k = el.dataset.key; ui.expanded[k] = !ui.expanded[k]; render(); },
     'shuffle-all': () => { ui.sheet.days = generateDays(); render(); },
     'prefer-fav': () => { S.preferFav = !S.preferFav; save(); render(); },
     'kid-toggle': (el) => {
