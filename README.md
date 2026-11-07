@@ -13,7 +13,12 @@ Ada dua versi yang memakai data resep yang sama:
 | `data/` | Sumber data: `menus.json` (daftar menu & pasangan), `ingredients.json` (kosakata bahan), `recipes/part-*.json` (resep) |
 | `tools/` | `build_data.py` (gabungkan data), `check_part.py` (validasi resep) |
 
-## Menjalankan web app
+## Versi online
+
+https://juliansl.github.io/daily-menu/ — otomatis diperbarui setiap kali ada push ke `main`
+(workflow `.github/workflows/pages.yml`). Di iPhone: buka di Safari → Share → Add to Home Screen.
+
+## Menjalankan web app di komputer
 
 ```bash
 python -m http.server 5173 --directory web
