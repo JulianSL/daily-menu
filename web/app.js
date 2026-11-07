@@ -15,7 +15,10 @@
   const MAIN = {}; MAINS.forEach((m) => { MAIN[m.id] = m; });
   const SIDE = {}; SIDES.forEach((s) => { SIDE[s.id] = s; });
   const KID = {}; KIDS.forEach((k) => { KID[k.id] = k; });
-  const nameOf = (id) => (MAIN[id] || SIDE[id] || KID[id] || R[id] || { name: id }).name;
+  const nameOf = (id) => (MAIN[id] || SIDE[id] || KID[id] || R[id] || ideaById(id) || { name: id }).name;
+  // "Untuk nanti" ideas live in the user's state (S.ideas) and sync with it.
+  function ideaById(id) { return (typeof S !== 'undefined' && S.ideas || []).find((x) => x.id === id) || null; }
+  const isIdea = (id) => !!ideaById(id);
 
   const DAY_NAMES = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const DAY_SHORT = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'];
@@ -37,7 +40,9 @@
       favorites: D.menus.favorites.filter((id) => MAIN[id]).map((id) => id + '|' + MAIN[id].defaultSideId),
       kidOverrides: {},        // mainId -> bool (user's own "ramah anak" marks)
       preferFav: true,
-      updatedAt: 0             // ms timestamp of the last local change (for sync)
+      ideas: [],               // "Untuk nanti": [{id, name, type: main|side, kidFriendly, source, url, ingredients[], steps[], createdAt}]
+      includeIdeas: true,      // put up to 2 ★ ideas into a new week
+      updatedAt: 0            // ms timestamp of the last local change (for sync)
     };
   }
   function load() {
@@ -133,7 +138,13 @@
     return a;
   }
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  const isKidOk = (mainId) => (mainId in S.kidOverrides ? S.kidOverrides[mainId] : !!(MAIN[mainId] && MAIN[mainId].kidFriendly));
+  const isKidOk = (mainId) => {
+    if (mainId in S.kidOverrides) return S.kidOverrides[mainId];
+    if (MAIN[mainId]) return !!MAIN[mainId].kidFriendly;
+    const idea = ideaById(mainId);
+    return !!(idea && idea.kidFriendly);
+  };
+  const mainSource = (id) => (MAIN[id] ? MAIN[id].source : isIdea(id) ? 'idea' : 'user');
   const favKey = (mainId, sideId) => mainId + '|' + sideId;
   const isFav = (mainId, sideId) => S.favorites.includes(favKey(mainId, sideId));
   const favMainIds = () => S.favorites.map((k) => k.split('|')[0]).filter((id) => MAIN[id]);
@@ -202,12 +213,19 @@
     reset: '<path d="M4 11a8 8 0 1 1 2.3 5.7"/><path d="M4 4v7h7"/>',
     cloud: '<path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 11a3.75 3.75 0 0 1-.5 7.5z"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>',
-    share: '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/>'
+    share: '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8.5 8.5"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',
+    pencil: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'
   };
   const icon = (name, size = 20, extra = '') =>
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${P[name]}</svg>`;
   const grip = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
   const smallHeart = `<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--heart)" stroke="var(--heart)" stroke-width="2" stroke-linejoin="round" role="img" aria-label="Favorit" style="flex-shrink:0">${P.heart}</svg>`;
+  const STAR_PATH = '<path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.85L12 16.9l-5.25 2.75 1-5.85L3.5 9.7l5.9-.9z"/>';
+  const star = (size = 14) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="var(--star)" stroke="var(--star)" stroke-width="1.5" stroke-linejoin="round" role="img" aria-label="Menu untuk nanti" style="flex-shrink:0">${STAR_PATH}</svg>`;
+  const starIf = (id, size) => (isIdea(id) ? star(size) : '');
 
   // ---------- Menu generation ----------
   function uniqueSide(preferred, used) {
@@ -220,18 +238,26 @@
     return pick(free.length ? free : KIDS.map((k) => k.id));
   }
   function generateDays() {
+    // Up to 2 "untuk nanti" ideas join the week (main ideas as mains, side ideas as sides).
+    const ideas = S.includeIdeas ? shuffle(S.ideas || []).slice(0, 2) : [];
+    const ideaMains = ideas.filter((x) => x.type !== 'side').map((x) => x.id);
+    const ideaSides = ideas.filter((x) => x.type === 'side').map((x) => x.id);
     const picks = [];
     const add = (id) => { if (!picks.includes(id)) picks.push(id); };
-    if (S.preferFav) shuffle(favMainIds()).slice(0, 3).forEach(add);
+    ideaMains.forEach(add);
+    if (S.preferFav) shuffle(favMainIds()).slice(0, 3).forEach((id) => { if (picks.length < 7) add(id); });
     shuffle(MAINS.filter((m) => m.source === 'user').map((m) => m.id)).forEach((id) => { if (picks.length < 6) add(id); });
     shuffle(MAINS.map((m) => m.id)).forEach((id) => { if (picks.length < 7) add(id); });
     const usedSides = [];
     const kidMenus = shuffle(KIDS.map((k) => k.id));
-    return shuffle(picks).map((id, i) => {
-      const sideId = uniqueSide(MAIN[id].defaultSideId, usedSides);
+    const days = shuffle(picks).map((id, i) => {
+      const preferred = MAIN[id] ? MAIN[id].defaultSideId : pick(SIDES).id;
+      const sideId = uniqueSide(preferred, usedSides);
       usedSides.push(sideId);
       return { mainId: id, sideId, kidMenuId: kidMenus[i % kidMenus.length] };
     });
+    shuffle(days.map((_, i) => i)).slice(0, ideaSides.length).forEach((dayIndex, k) => { days[dayIndex].sideId = ideaSides[k]; });
+    return days;
   }
   function rerollDay(days, i) {
     const used = days.map((d) => d.mainId);
@@ -257,39 +283,71 @@
   }
   const kidIdFor = (d) => (isKidOk(d.mainId) ? null : d.kidMenuId);
 
+  // ---------- Recipes (catalog or idea) as uniform rows ----------
+  // row.key is the shopping-list id: a vocabulary id when known, otherwise "x:<name>".
+  function recipeRows(rid) {
+    const r = R[rid];
+    if (r) {
+      return {
+        name: r.name, type: r.type, servings: r.servings, timeMinutes: r.timeMinutes, steps: r.steps,
+        rows: r.ingredients.filter((i) => ING[i.id]).map((i) => {
+          const q = typeof i.qty === 'number' ? i.qty : null;
+          return { key: i.id, name: ING[i.id].name, label: ING[i.id].name, category: ING[i.id].category, qty: q, unit: ING[i.id].unit, qtyText: fmtQty(q, ING[i.id].unit), note: i.note, pantry: !!ING[i.id].pantry };
+        })
+      };
+    }
+    const x = ideaById(rid);
+    if (!x) return null;
+    return {
+      name: x.name, type: x.type, servings: null, timeMinutes: null, steps: x.steps || [], idea: x,
+      rows: (x.ingredients || []).map((i) => {
+        const v = i.vocabId && ING[i.vocabId];
+        return {
+          key: v ? v.id : 'x:' + i.name.toLowerCase(),
+          name: v ? v.name : i.name,          // shopping list groups under the catalog name
+          label: i.name,                      // recipe shows the name as written
+          category: v ? v.category : (i.category || 'misc'),
+          qty: v && typeof i.qty === 'number' ? i.qty : null,
+          unit: v ? v.unit : null,
+          qtyText: i.qtyText || 'secukupnya',
+          note: i.note,
+          pantry: v ? !!v.pantry : false
+        };
+      })
+    };
+  }
+
   // ---------- Shopping list ----------
   function buildShopping(days) {
     const map = {};
     days.forEach((d, i) => {
       const parts = [[d.mainId, DAY_LABEL[i]], [d.sideId, DAY_LABEL[i]], [d.kidId, 'Anak ' + DAY_LABEL[i]]];
       parts.forEach(([rid, label], p) => {
-        const r = rid && R[rid];
+        const r = rid && recipeRows(rid);
         if (!r) return;
-        r.ingredients.forEach((ing) => {
-          if (!ING[ing.id]) return;
-          const e = map[ing.id] || (map[ing.id] = { id: ing.id, qty: 0, hasQty: false, uses: [], details: [] });
-          if (typeof ing.qty === 'number') { e.qty += ing.qty; e.hasQty = true; }
+        r.rows.forEach((row) => {
+          const e = map[row.key] || (map[row.key] = { id: row.key, name: row.name, category: row.category, unit: row.unit, pantry: row.pantry, qty: 0, hasQty: false, extra: [], uses: [], details: [] });
+          if (row.qty != null && row.unit) { e.qty += row.qty; e.hasQty = true; if (!e.unit) e.unit = row.unit; }
+          else if (row.qtyText && row.qtyText !== 'secukupnya') e.extra.push(row.qtyText);
           if (!e.uses.includes(label)) e.uses.push(label);
-          e.details.push({
-            day: DAY_NAMES[i],
-            dish: r.name,
-            role: p === 0 ? 'Utama' : p === 1 ? 'Pendamping' : 'Anak',
-            qty: fmtQty(typeof ing.qty === 'number' ? ing.qty : null, ING[ing.id].unit)
-          });
+          e.details.push({ day: DAY_NAMES[i], dish: r.name, role: p === 0 ? 'Utama' : p === 1 ? 'Pendamping' : 'Anak', qty: row.qtyText, idea: !!r.idea });
         });
       });
     });
     return CATS.map((c) => {
       const items = Object.values(map)
-        .filter((e) => ING[e.id].category === c.id)
-        .map((e) => ({
-          id: e.id,
-          name: ING[e.id].name,
-          pantry: !!ING[e.id].pantry,
-          qty: e.hasQty ? fmtQty(e.qty, ING[e.id].unit) : 'secukupnya',
-          use: e.uses.length >= 6 ? 'hampir semua menu' : e.uses.join(', '),
-          details: e.details
-        }))
+        .filter((e) => e.category === c.id)
+        .map((e) => {
+          const parts = (e.hasQty ? [fmtQty(e.qty, e.unit)] : []).concat(e.extra);
+          return {
+            id: e.id,
+            name: e.name,
+            pantry: e.pantry,
+            qty: parts.join(' + ') || 'secukupnya',
+            use: e.uses.length >= 6 ? 'hampir semua menu' : e.uses.join(', '),
+            details: e.details
+          };
+        })
         .sort((a, b) => a.name.localeCompare(b.name, 'id'));
       return Object.assign({}, c, { items });
     });
@@ -307,8 +365,10 @@
     else if (ui.view && ui.view.type === 'fav') html = viewFavDetail();
     else if (ui.view && ui.view.type === 'reorder') html = viewReorder();
     else if (ui.view && ui.view.type === 'sync') html = viewSync();
+    else if (ui.view && ui.view.type === 'idea') html = viewIdea();
     else html = (ui.tab === 'home' ? viewHome() : ui.tab === 'shop' ? viewShop() : viewFav()) + tabbar();
     if (ui.sheet) html += viewSheet();
+    if (ui.ideaSheet) html += viewIdeaSheet();
     if (ui.toast) html += `<div class="toast" role="status">${esc(ui.toast.text)}${ui.toast.undo ? ' · <button class="text-btn small" style="color:#fff;text-decoration:underline" data-act="undo">Urungkan</button>' : ''}</div>`;
     app.innerHTML = html;
     app.querySelectorAll('[data-scroll]').forEach((el) => { if (scrolls[el.dataset.scroll] != null) el.scrollTop = scrolls[el.dataset.scroll]; });
@@ -356,8 +416,8 @@
           <span class="vline" aria-hidden="true"></span>
           <span class="names">
             ${i === ti ? '<span class="today-tag">Hari ini</span>' : ''}
-            <span class="main"><span>${esc(nameOf(d.mainId))}</span></span>
-            <span class="side">+ ${esc(nameOf(d.sideId))}</span>
+            <span class="main"><span>${esc(nameOf(d.mainId))}</span>${starIf(d.mainId)}</span>
+            <span class="side">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>
             <span class="kidline">Anak: ${d.kidId ? esc(nameOf(d.kidId)) : 'sama'}</span>
           </span>
         </button>
@@ -484,6 +544,14 @@
 
   // Favorites tab ------------------------------------------------------
   function viewFav() {
+    const seg = ui.favSeg || 'fav';
+    const ideas = S.ideas || [];
+    const segmented = `<div class="segmented" role="tablist" aria-label="Favorit atau untuk nanti" style="grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 20px 0">
+        <button type="button" role="tab" aria-selected="${seg === 'fav'}" data-act="fav-seg" data-seg="fav">Favorit <small>${S.favorites.length}</small></button>
+        <button type="button" role="tab" aria-selected="${seg === 'later'}" data-act="fav-seg" data-seg="later">${star(14)} Untuk nanti <small>${ideas.length}</small></button>
+      </div>`;
+    const fab = `<button type="button" class="fab" data-act="idea-new" aria-label="Tambah ide menu untuk nanti">${icon('plus', 26, 'stroke-width="2.4"')}</button>`;
+    if (seg === 'later') return viewLater(segmented, fab);
     const q = ui.favQuery.trim().toLowerCase();
     const items = S.favorites.filter((k) => {
       if (!q) return true;
@@ -504,35 +572,155 @@
         </button>
       </li>`;
     }).join('');
-    return `<section class="screen">
-      <header class="page-head"><div><p class="eyebrow">${S.favorites.length} set menu yang kamu suka</p><h1>Favorit</h1></div></header>
-      <div style="padding:16px 20px 0;display:flex;flex-direction:column;gap:6px">
-        <label for="cari" style="font-size:12px;font-weight:700;color:var(--muted)">Cari favorit</label>
-        <div class="search">${icon('search', 18)}<input id="cari" type="search" placeholder="Rawon, soto, ayam…" value="${esc(ui.favQuery)}" data-act="fav-search" autocomplete="off"></div>
+    return `<section class="screen" style="position:relative">
+      <header class="page-head"><div><p class="eyebrow">Menu yang kamu suka &amp; ingin dicoba</p><h1>Favorit</h1></div></header>
+      ${segmented}
+      <div style="padding:14px 20px 0;display:flex;flex-direction:column;gap:6px">
+        <label for="cari" class="sr-only">Cari favorit</label>
+        <div class="search">${icon('search', 18)}<input id="cari" type="search" placeholder="Cari favorit: rawon, soto…" value="${esc(ui.favQuery)}" data-act="fav-search" autocomplete="off"></div>
       </div>
-      <ul class="scroll list" data-scroll="fav" style="padding:16px 16px 16px">
+      <ul class="scroll list" data-scroll="fav" style="padding:16px 16px 96px">
         ${list || `<li class="empty-cat">${q ? 'Tidak ada favorit yang cocok.' : 'Belum ada favorit. Ketuk ♥ pada menu untuk menyimpannya di sini.'}</li>`}
       </ul>
+      ${fab}
     </section>`;
+  }
+
+  function viewLater(segmented, fab) {
+    const ideas = S.ideas || [];
+    const SRC = { image: 'Dari screenshot', web: 'Dari website', manual: 'Ditulis manual' };
+    const list = ideas.map((x) => `<li class="card fav-card">
+        <button type="button" class="row-link" data-act="open-idea" data-id="${esc(x.id)}">
+          <span style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px">${star(15)}${esc(x.name)}</span>
+          <span class="t">${x.type === 'side' ? 'Pendamping' : 'Menu utama'} · ${SRC[x.source] || ''}${x.kidFriendly ? ' · <span style="color:var(--kid)">ramah anak</span>' : ''}</span>
+          <span class="t">${(x.ingredients || []).length} bahan · ${(x.steps || []).length} langkah</span>
+        </button>
+      </li>`).join('');
+    return `<section class="screen" style="position:relative">
+      <header class="page-head"><div><p class="eyebrow">Menu yang kamu suka &amp; ingin dicoba</p><h1>Favorit</h1></div></header>
+      ${segmented}
+      <ul class="scroll list" data-scroll="later" style="padding:16px 16px 96px">
+        ${ideas.length ? `<li class="hint" style="padding:0 4px 4px">${star(14)}<span>Menu ★ ikut dipilih saat kamu membuat menu mingguan baru (bisa dimatikan di langkah 1).</span></li>` + list
+          : `<li class="card empty" style="margin:0"><div class="ico" style="background:var(--star-soft);color:var(--star)">${star(26)}</div>
+              <h2>Simpan ide menu untuk nanti</h2>
+              <p>Ketuk tombol + untuk menambah resep dari screenshot, dari website seperti cookpad, atau tulis sendiri.</p></li>`}
+      </ul>
+      ${fab}
+    </section>`;
+  }
+
+  // Idea detail -----------------------------------------------------------
+  function viewIdea() {
+    const x = ideaById(ui.view.id);
+    if (!x) { ui.view = null; return viewFav() + tabbar(); }
+    return `<section class="screen">
+      <header class="nav-head">
+        <button type="button" class="text-btn accent" data-act="back">${icon('left', 22)}Untuk nanti</button>
+        <button type="button" class="text-btn accent" data-act="idea-edit" data-id="${esc(x.id)}">Edit</button>
+      </header>
+      <div class="scroll" data-scroll="idea-${esc(x.id)}" style="padding:8px 20px 24px;display:flex;flex-direction:column;gap:18px">
+        <div class="detail-title">
+          <p class="kicker" style="color:var(--star-ink)">${star(14)} Menu untuk nanti · ${x.type === 'side' ? 'Pendamping' : 'Menu utama'}</p>
+          <h1>${esc(x.name)}</h1>
+          ${x.kidFriendly ? '<p class="kidsub">Ramah anak</p>' : ''}
+        </div>
+        ${recipeBlock(x.id)}
+      </div>
+      <div class="sheet-foot">
+        <button type="button" class="btn secondary block" style="color:var(--heart)" data-act="idea-delete" data-id="${esc(x.id)}">Hapus dari daftar</button>
+      </div>
+    </section>`;
+  }
+
+  // Add-idea sheet ---------------------------------------------------------
+  function viewIdeaSheet() {
+    const sh = ui.ideaSheet;
+    const titles = { choose: 'Tambah menu untuk nanti', image: 'Dari screenshot', web: 'Dari website', edit: sh.editingId ? 'Edit menu' : 'Periksa & simpan' };
+    let body = '';
+    let foot = '';
+    if (sh.step === 'choose') {
+      const opt = (act, ic, t, d) => `<button type="button" class="card option" data-act="${act}"><span class="ico">${ic}</span><span class="txt"><b>${t}</b><small>${d}</small></span>${icon('right', 18)}</button>`;
+      body = `<div class="sheet-body">
+        <p class="hint" style="font-size:14px">Pilih cara menambahkan resep. Hasilnya bisa kamu periksa dan rapikan sebelum disimpan.</p>
+        ${opt('idea-pick-image', icon('image', 22), 'Dari screenshot', 'Pilih gambar resep, teksnya dibaca otomatis')}
+        ${opt('idea-web', icon('link', 22), 'Dari website', 'Tempel link dan teks resep, misalnya dari cookpad')}
+        ${opt('idea-manual', icon('pencil', 22), 'Isi manual', 'Tulis judul, bahan, dan cara memasak')}
+      </div>`;
+    } else if (sh.step === 'image') {
+      const pct = Math.round((sh.progress || 0) * 100);
+      body = `<div class="sheet-body">
+        ${sh.preview ? `<img src="${sh.preview}" alt="Screenshot yang dipilih" class="ocr-preview">` : ''}
+        ${sh.error
+          ? `<p class="note kid">${esc(sh.error)}</p><button type="button" class="btn secondary block" data-act="idea-pick-image">Pilih gambar lain</button>`
+          : `<p style="font-size:14px;font-weight:700">${sh.progressLabel || 'Membaca teks dari gambar…'} ${pct ? pct + '%' : ''}</p>
+             <div class="bar" role="progressbar" aria-label="Membaca gambar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>
+             <p class="hint" style="padding:0">Pertama kali butuh internet untuk mengunduh pembaca teks (sekitar 10 MB). Proses berjalan di HP, gambar tidak diunggah ke mana pun.</p>`}
+      </div>`;
+    } else if (sh.step === 'web') {
+      body = `<div class="sheet-body">
+        <p class="hint" style="font-size:14px;padding:0">Buka resepnya di Safari, pilih semua teks (judul, bahan, langkah), salin, lalu tempel di bawah. Aplikasi tidak bisa mengambil halaman website secara langsung.</p>
+        <label class="label" for="idea-url">Link resep (opsional)</label>
+        <input id="idea-url" class="field" type="url" inputmode="url" placeholder="https://cookpad.com/id/resep/…" value="${esc(sh.url || '')}">
+        <label class="label" for="idea-paste">Teks resep</label>
+        <textarea id="idea-paste" class="field" rows="10" placeholder="Tempel teks resep di sini">${esc(sh.paste || '')}</textarea>
+      </div>`;
+      foot = `<button type="button" class="btn secondary" data-act="idea-back">Kembali</button><button type="button" class="btn primary grow" data-act="idea-parse-web">Baca teks ${icon('right', 18)}</button>`;
+    } else {
+      const d = sh.draft;
+      body = `<div class="sheet-body">
+        ${sh.note ? `<p class="note">${icon('info', 18, 'style="flex-shrink:0;color:var(--accent)"')}<span>${esc(sh.note)}</span></p>` : ''}
+        <label class="label" for="idea-title">Judul masakan</label>
+        <input id="idea-title" class="field" type="text" placeholder="Misalnya: Ayam Bumbu Rujak" value="${esc(d.name)}">
+        <span class="label">Jenis</span>
+        <div class="segmented" role="radiogroup" aria-label="Jenis menu" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button type="button" role="radio" aria-checked="${d.type !== 'side'}" aria-selected="${d.type !== 'side'}" data-act="idea-type" data-type="main">Menu utama</button>
+          <button type="button" role="radio" aria-checked="${d.type === 'side'}" aria-selected="${d.type === 'side'}" data-act="idea-type" data-type="side">Pendamping</button>
+        </div>
+        <button type="button" class="switch-row" role="switch" aria-checked="${!!d.kidFriendly}" data-act="idea-kid">
+          ${icon('kid', 18, 'style="flex-shrink:0;color:var(--kid)"')}<span class="txt"><b>Ramah anak</b><small>Anak ikut makan menu ini</small></span><span class="switch" aria-hidden="true"></span>
+        </button>
+        <label class="label" for="idea-ings">Bahan-bahan <small>(satu bahan per baris, contoh: 500 gr ayam)</small></label>
+        <textarea id="idea-ings" class="field" rows="8" placeholder="500 gr ayam&#10;5 butir bawang merah&#10;2 sdm kecap manis">${esc(d.ingredientsText)}</textarea>
+        <label class="label" for="idea-steps">Cara memasak <small>(satu langkah per baris)</small></label>
+        <textarea id="idea-steps" class="field" rows="7" placeholder="Haluskan bumbu.&#10;Tumis hingga harum.">${esc(d.stepsText)}</textarea>
+        <label class="label" for="idea-src">Link resep (opsional)</label>
+        <input id="idea-src" class="field" type="url" inputmode="url" placeholder="https://…" value="${esc(d.url || '')}">
+      </div>`;
+      foot = `<button type="button" class="btn secondary" data-act="${sh.editingId ? 'idea-close' : 'idea-back'}">${sh.editingId ? 'Batal' : 'Kembali'}</button><button type="button" class="btn primary grow" data-act="idea-save">${star(16)} Simpan ke untuk nanti</button>`;
+    }
+    const anim = sh.fresh ? ' anim' : '';
+    sh.fresh = false;
+    return `<div class="sheet-wrap${anim}"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="idea-sheet-title">
+      <div class="grabber" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <button type="button" class="icon-btn" data-act="idea-close" aria-label="Tutup">${icon('x', 22, 'stroke-width="2.2"')}</button>
+        <h1 id="idea-sheet-title">${titles[sh.step]}</h1>
+        <span class="step"></span>
+      </div>
+      ${body}${foot ? `<div class="sheet-foot">${foot}</div>` : ''}
+    </section></div>`;
   }
 
   // Detail (day of plan) ------------------------------------------------
   function recipeBlock(rid) {
-    const r = R[rid];
+    const r = recipeRows(rid);
     if (!r) return `<p class="empty-cat">Resep untuk ${esc(nameOf(rid))} belum tersedia.</p>`;
     const groups = CATS.map((c) => {
-      const items = r.ingredients.filter((ing) => ING[ing.id] && ING[ing.id].category === c.id);
+      const items = r.rows.filter((row) => row.category === c.id);
       if (!items.length) return '';
       return `<div class="card ing-group">
         <p style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">${c.id === 'misc' ? 'Lainnya' : c.label}</p>
-        <ul style="display:flex;flex-direction:column;gap:6px">${items.map((ing) =>
-          `<li><b>${esc(ING[ing.id].name)}${ing.note ? ` <em>· ${esc(ing.note)}</em>` : ''}</b><span>${esc(fmtQty(ing.qty, ING[ing.id].unit))}</span></li>`).join('')}</ul>
+        <ul style="display:flex;flex-direction:column;gap:6px">${items.map((row) =>
+          `<li><b>${esc(row.label)}${row.note ? ` <em>· ${esc(row.note)}</em>` : ''}</b><span>${esc(row.qtyText)}</span></li>`).join('')}</ul>
       </div>`;
     }).join('');
+    const sub = r.idea
+      ? `Menu untuk nanti${r.idea.url ? ` · <a href="${esc(r.idea.url)}" target="_blank" rel="noopener">resep asli</a>` : ''}`
+      : `Untuk ${r.servings} porsi${r.type === 'kid' ? ' anak' : ''}`;
     return `<section style="display:flex;flex-direction:column;gap:10px"><h2 class="h2">Bahan · ${esc(r.name)}</h2>
-        <p style="font-size:13px;color:var(--muted)">Untuk ${r.servings} porsi${r.type === 'kid' ? ' anak' : ''}</p>${groups}</section>
+        <p style="font-size:13px;color:var(--muted)">${sub}</p>${groups || '<p class="empty-cat">Belum ada bahan.</p>'}</section>
       <section style="display:flex;flex-direction:column;gap:12px"><h2 class="h2">Langkah memasak</h2>
-        <ol class="steps">${r.steps.map((s, i) => `<li><span class="n">${i + 1}</span><p>${esc(s)}</p></li>`).join('')}</ol></section>`;
+        ${r.steps.length ? `<ol class="steps">${r.steps.map((s, i) => `<li><span class="n">${i + 1}</span><p>${esc(s)}</p></li>`).join('')}</ol>` : '<p class="empty-cat">Belum ada langkah.</p>'}</section>`;
   }
 
   function tabsFor(set) {
@@ -562,8 +750,8 @@
       <div class="scroll" data-scroll="detail-${i}-${ui.detailTab}" style="padding:8px 20px 24px;display:flex;flex-direction:column;gap:18px">
         <div class="detail-title">
           <p class="kicker">${DAY_NAMES[i]}, ${date.getDate()} ${MONTHS[date.getMonth()]}${i === ti ? ' · Hari ini' : ''}</p>
-          <h1>${esc(nameOf(d.mainId))}</h1>
-          <p class="sub">+ ${esc(nameOf(d.sideId))}</p>
+          <h1>${esc(nameOf(d.mainId))} ${starIf(d.mainId, 22)}</h1>
+          <p class="sub">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 14)}</p>
           <p class="kidsub">Anak: ${d.kidId ? esc(nameOf(d.kidId)) : 'sama'}</p>
         </div>
         <div class="meta">
@@ -723,18 +911,19 @@
     const days = ui.sheet.days;
     const dates = draftDates();
     const favCount = days.filter((d) => favMainIds().includes(d.mainId)).length;
-    const mineCount = days.filter((d) => MAIN[d.mainId].source === 'user').length;
+    const mineCount = days.filter((d) => mainSource(d.mainId) !== 'online').length;
     const kidSame = days.filter((d) => isKidOk(d.mainId)).length;
+    const ideaCount = days.filter((d) => isIdea(d.mainId) || isIdea(d.sideId)).length;
     const adult = days.map((d, i) => {
-      const m = MAIN[d.mainId];
+      const m = { id: d.mainId, name: nameOf(d.mainId), source: mainSource(d.mainId) };
       const kid = isKidOk(d.mainId);
       return `<li class="card menu-card stack">
         <div class="row">
           <span class="day-col"><span class="dn">${DAY_SHORT[i]}</span><span class="dd">${dates[i].getDate()}</span></span>
           <span class="vline" aria-hidden="true"></span>
           <span class="names">
-            <span class="main"><span>${esc(m.name)}</span>${favMainIds().includes(m.id) ? smallHeart : ''}${m.source === 'online' ? '<span class="badge-online">Online</span>' : ''}</span>
-            <span class="side">+ ${esc(nameOf(d.sideId))}</span>
+            <span class="main"><span>${esc(m.name)}</span>${starIf(m.id)}${favMainIds().includes(m.id) ? smallHeart : ''}${m.source === 'online' ? '<span class="badge-online">Online</span>' : ''}</span>
+            <span class="side">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>
           </span>
           <button type="button" class="icon-btn soft" data-act="reroll" data-i="${i}" aria-label="Acak ulang menu ${DAY_NAMES[i]}">${icon('refresh')}</button>
         </div>
@@ -768,6 +957,11 @@
         <span class="txt"><b>Utamakan menu favorit</b><small>${favCount} dari 7 menu ini favoritmu</small></span>
         <span class="switch" aria-hidden="true"></span>
       </button>
+      ${(S.ideas || []).length ? `<button type="button" class="switch-row" role="switch" aria-checked="${S.includeIdeas}" data-act="include-ideas">
+        ${star(18)}
+        <span class="txt"><b>Sertakan menu untuk nanti</b><small>${S.includeIdeas ? `${ideaCount} menu ★ minggu ini · sampai 2 per minggu` : `${S.ideas.length} ide tersimpan, tidak diikutkan`}</small></span>
+        <span class="switch" aria-hidden="true"></span>
+      </button>` : ''}
       <div class="section-head"><h2>Menu Dewasa</h2><button type="button" class="text-btn small accent" style="margin:-12px -8px" data-act="shuffle-all">${icon('shuffle', 16)}Acak semua</button></div>
       <ul class="list">${adult}</ul>
       <div class="intro" style="margin-top:10px">
@@ -812,8 +1006,8 @@
       </div>
       <ul class="card plain-list">${days.map((d, i) => `<li>
         <span class="d">${DAY_LABEL[i]} ${dates[i].getDate()}</span>
-        <span class="names"><span class="main" style="font-size:14px"><span>${esc(nameOf(d.mainId))}</span></span>
-        <span class="side" style="font-size:12px">+ ${esc(nameOf(d.sideId))}</span>
+        <span class="names"><span class="main" style="font-size:14px"><span>${esc(nameOf(d.mainId))}</span>${starIf(d.mainId)}</span>
+        <span class="side" style="font-size:12px">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>
         <span class="kidline">Anak: ${isKidOk(d.mainId) ? 'ikut menu dewasa' : esc(nameOf(d.kidMenuId))}</span></span>
       </li>`).join('')}</ul>
       <p class="hint">${icon('info', 18, 'style="flex-shrink:0"')}<span>Urutan hari masih bisa diatur ulang dari Beranda, dan daftar belanja tetap tersimpan di tab Belanja selama seminggu.</span></p>
@@ -829,6 +1023,84 @@
   const actions = {
     'tab': (el) => { ui.tab = el.dataset.tab; ui.view = null; render(); },
     'open-sync': () => { ui.view = { type: 'sync' }; render(); },
+    // ----- Untuk nanti -----
+    'fav-seg': (el) => { ui.favSeg = el.dataset.seg; render(); },
+    'include-ideas': () => { S.includeIdeas = !S.includeIdeas; save(); ui.sheet.days = generateDays(); render(); },
+    'idea-new': () => { ui.ideaSheet = { step: 'choose', fresh: true }; render(); },
+    'idea-close': () => { ui.ideaSheet = null; render(); },
+    'idea-back': () => { captureIdeaForm(); ui.ideaSheet.step = 'choose'; ui.ideaSheet.error = null; render(); },
+    'idea-manual': () => { Object.assign(ui.ideaSheet, { step: 'edit', draft: emptyIdeaDraft('manual'), note: null }); render(); },
+    'idea-web': () => { ui.ideaSheet.step = 'web'; render(); },
+    'idea-parse-web': () => {
+      const sh = ui.ideaSheet;
+      sh.url = (document.getElementById('idea-url') || {}).value || '';
+      sh.paste = (document.getElementById('idea-paste') || {}).value || '';
+      if (!sh.paste.trim()) { toast('Tempel teks resepnya dulu'); return; }
+      draftFromText(sh.paste, 'web', sh.url.trim());
+      render();
+    },
+    'idea-pick-image': () => {
+      // Created on the fly so the photo picker opens straight from this tap (iOS needs a user gesture).
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = () => { if (input.files && input.files[0]) readImage(input.files[0]); };
+      input.click();
+    },
+    'idea-type': (el) => { captureIdeaForm(); ui.ideaSheet.draft.type = el.dataset.type; render(); },
+    'idea-kid': () => { captureIdeaForm(); ui.ideaSheet.draft.kidFriendly = !ui.ideaSheet.draft.kidFriendly; render(); },
+    'idea-save': () => {
+      captureIdeaForm();
+      const sh = ui.ideaSheet;
+      const d = sh.draft;
+      if (!d.name.trim()) { toast('Isi judul masakan dulu'); return; }
+      const lines = (t) => String(t || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const ingredients = lines(d.ingredientsText).map((l) => {
+        const p = window.IdeaKit.parseIngredientLine(l, D.ingredients);
+        return { text: p.text, name: p.name, qty: p.qty, qtyText: p.qtyText, note: p.note, category: p.category, vocabId: p.vocabId };
+      });
+      const idea = {
+        name: d.name.trim(), type: d.type === 'side' ? 'side' : 'main', kidFriendly: !!d.kidFriendly,
+        source: d.source || 'manual', url: (d.url || '').trim(), ingredients, steps: lines(d.stepsText)
+      };
+      S.ideas = S.ideas || [];
+      if (sh.editingId) {
+        const i = S.ideas.findIndex((x) => x.id === sh.editingId);
+        if (i >= 0) S.ideas[i] = Object.assign({}, S.ideas[i], idea);
+      } else {
+        S.ideas.unshift(Object.assign({ id: 'idea-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), createdAt: Date.now() }, idea));
+        ui.tab = 'fav'; ui.favSeg = 'later'; ui.view = null;
+      }
+      save();
+      ui.ideaSheet = null;
+      toast(sh.editingId ? 'Perubahan disimpan' : 'Disimpan ke Untuk nanti ★');
+    },
+    'open-idea': (el) => { ui.view = { type: 'idea', id: el.dataset.id }; render(); },
+    'idea-edit': (el) => {
+      const x = ideaById(el.dataset.id);
+      if (!x) return;
+      ui.ideaSheet = {
+        step: 'edit', fresh: true, editingId: x.id, note: null,
+        draft: {
+          name: x.name, type: x.type, kidFriendly: !!x.kidFriendly, url: x.url || '', source: x.source,
+          ingredientsText: (x.ingredients || []).map((i) => i.text || [i.qtyText, i.name].filter(Boolean).join(' ') + (i.note ? ', ' + i.note : '')).join('\n'),
+          stepsText: (x.steps || []).join('\n')
+        }
+      };
+      render();
+    },
+    'idea-delete': (el) => {
+      const id = el.dataset.id;
+      if (S.plan && S.plan.days.some((d) => d.mainId === id || d.sideId === id)) {
+        toast('Menu ini dipakai minggu ini, hapus setelah minggu selesai');
+        return;
+      }
+      if (!window.confirm('Hapus menu ini dari daftar Untuk nanti?')) return;
+      S.ideas = (S.ideas || []).filter((x) => x.id !== id);
+      save();
+      ui.view = null;
+      toast('Dihapus dari Untuk nanti');
+    },
     'sync-create': () => {
       const code = newFamilyCode();
       S.updatedAt = Date.now();
@@ -963,6 +1235,55 @@
     'reset-order': () => { ui.view.order = S.plan.days.slice(); ui.view.moved = null; render(); },
     'save-order': () => { S.plan.days = ui.view.order.slice(); save(); ui.view = null; toast('Urutan menu diperbarui'); }
   };
+
+  // ----- Untuk nanti helpers -----
+  function emptyIdeaDraft(source) {
+    return { name: '', type: 'main', kidFriendly: false, url: '', source, ingredientsText: '', stepsText: '' };
+  }
+  function draftFromText(text, source, url) {
+    const p = window.IdeaKit.parseRecipeText(text);
+    const sh = ui.ideaSheet;
+    sh.draft = Object.assign(emptyIdeaDraft(source), {
+      name: p.title, url: url || '', ingredientsText: p.ingredients.join('\n'), stepsText: p.steps.join('\n')
+    });
+    sh.note = p.ingredients.length || p.steps.length
+      ? `Terbaca ${p.ingredients.length} bahan dan ${p.steps.length} langkah. Periksa dan rapikan bila perlu.`
+      : 'Bahan dan langkah tidak terbaca otomatis. Teksnya ada di kolom bahan; pindahkan dan rapikan secara manual.';
+    if (!p.ingredients.length && !p.steps.length) sh.draft.ingredientsText = text.trim();
+    sh.step = 'edit';
+  }
+  /** Keep what the user typed before a re-render (type/kid toggles, back). */
+  function captureIdeaForm() {
+    const sh = ui.ideaSheet;
+    if (!sh || sh.step !== 'edit' || !sh.draft) return;
+    const v = (id) => { const el = document.getElementById(id); return el ? el.value : null; };
+    const d = sh.draft;
+    if (v('idea-title') != null) d.name = v('idea-title');
+    if (v('idea-ings') != null) d.ingredientsText = v('idea-ings');
+    if (v('idea-steps') != null) d.stepsText = v('idea-steps');
+    if (v('idea-src') != null) d.url = v('idea-src');
+  }
+  function readImage(file) {
+    const sh = ui.ideaSheet;
+    if (!sh) return;
+    Object.assign(sh, { step: 'image', progress: 0, error: null, progressLabel: 'Menyiapkan pembaca teks…', preview: URL.createObjectURL(file) });
+    render();
+    window.IdeaKit.ocr(file, (p) => {
+      if (ui.ideaSheet !== sh) return;
+      sh.progress = p; sh.progressLabel = 'Membaca teks dari gambar…';
+      render();
+    }).then((text) => {
+      if (ui.ideaSheet !== sh) return;
+      if (!text || !text.trim()) { sh.error = 'Tidak ada teks yang terbaca dari gambar ini. Coba screenshot yang lebih jelas.'; render(); return; }
+      draftFromText(text, 'image', '');
+      sh.draft.source = 'image';
+      render();
+    }).catch((err) => {
+      if (ui.ideaSheet !== sh) return;
+      sh.error = 'Gagal membaca gambar' + (navigator.onLine ? '' : ' (butuh internet saat pertama kali)') + ': ' + (err && err.message ? err.message : err);
+      render();
+    });
+  }
 
   function moveItem(from, to) {
     const order = ui.view.order;

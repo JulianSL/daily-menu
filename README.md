@@ -18,6 +18,14 @@ Ada dua versi yang memakai data resep yang sama:
 https://juliansl.github.io/daily-menu/ — otomatis diperbarui setiap kali ada push ke `main`
 (workflow `.github/workflows/pages.yml`). Di iPhone: buka di Safari → Share → Add to Home Screen.
 
+### Untuk nanti (★)
+
+Tab Favorit → **Untuk nanti** → tombol **+**: tambah resep dari screenshot (dibaca dengan OCR
+Tesseract.js di HP, bahasa Indonesia), dari website (tempel link + teks resep yang disalin), atau tulis manual.
+Bahan dikenali ke kosakata `data/ingredients.json` bila bisa (lihat `web/ideas.js`), sehingga ikut
+digabung di daftar belanja. Saat membuat menu baru, sampai 2 menu ★ ikut dipilih (sakelar di langkah 1).
+Ide tersimpan di data pengguna dan ikut sinkron keluarga.
+
 ### Sinkron keluarga
 
 Ikon awan di Beranda → **Buat kode keluarga** di satu device, lalu di device lain **Sambungkan** dengan
