@@ -263,5 +263,21 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .fav-card .row-link { flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; min-height: 60px; }
 .fav-card .t { font-size: 12px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 5px; }
 
+/* Family sync */
+.cloud-btn { position: relative; color: var(--muted); }
+.cloud-btn.on { color: var(--accent); }
+.cloud-btn .dot { position: absolute; top: 9px; right: 9px; width: 8px; height: 8px; border-radius: 4px; background: var(--accent); box-shadow: 0 0 0 2px #fff; }
+.sync-card { padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 18px; }
+.sync-card .label, label.label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.sync-card .code { font-size: 20px; font-weight: 800; letter-spacing: .06em; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; word-break: break-all; margin-top: 4px; }
+.sync-actions { display: flex; gap: 10px; }
+.sync-status { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.sync-status .dot { width: 8px; height: 8px; border-radius: 4px; background: #CFC7B9; }
+.sync-status.synced { color: var(--accent); } .sync-status.synced .dot { background: var(--accent); }
+.sync-status.saving .dot, .sync-status.connecting .dot { background: #C99A2E; }
+.sync-status.error, .sync-status.missing { color: var(--heart); } .sync-status.error .dot, .sync-status.missing .dot { background: var(--heart); }
+.code-input { height: 48px; border-radius: 12px; border: 1.5px solid #D3CCBF; background: #fff; padding: 0 12px; font-size: 16px; font-weight: 700; letter-spacing: .05em; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; text-transform: uppercase; width: 100%; }
+.code-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 .toast { position: absolute; left: 50%; bottom: calc(90px + var(--safe-bottom)); transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 40; animation: fade .2s; white-space: nowrap; }
 .hint { font-size: 13px; line-height: 1.45; color: var(--muted); padding: 0 4px; display: flex; gap: 8px; }

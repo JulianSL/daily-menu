@@ -18,6 +18,18 @@ Ada dua versi yang memakai data resep yang sama:
 https://juliansl.github.io/daily-menu/ — otomatis diperbarui setiap kali ada push ke `main`
 (workflow `.github/workflows/pages.yml`). Di iPhone: buka di Safari → Share → Add to Home Screen.
 
+### Sinkron keluarga
+
+Ikon awan di Beranda → **Buat kode keluarga** di satu device, lalu di device lain **Sambungkan** dengan
+kode itu (atau buka link yang dibagikan). Menu, daftar belanja, "sudah dimasak", dan favorit lalu
+tersinkron lewat Cloud Firestore (proyek Firebase `daily-menu-dba60`, konfigurasi di `web/firebase-config.js`).
+
+- Satu dokumen per keluarga: `families/<kode>`. Aturan keamanan ada di `firestore.rules`. Jika aturan
+  diubah, salin ulang ke Firebase Console → Firestore → Rules → Publish.
+- Siapa pun yang tahu kode bisa melihat dan mengubah data keluarga itu, jadi bagikan kode hanya ke keluarga.
+- Bila ada perubahan bersamaan, perubahan terakhir yang menang.
+- Versi SwiftUI belum mendukung sinkron.
+
 ## Menjalankan web app di komputer
 
 ```bash

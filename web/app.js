@@ -36,7 +36,8 @@
       shopping: {},            // ingredientId -> true (already bought / in stock)
       favorites: D.menus.favorites.filter((id) => MAIN[id]).map((id) => id + '|' + MAIN[id].defaultSideId),
       kidOverrides: {},        // mainId -> bool (user's own "ramah anak" marks)
-      preferFav: true
+      preferFav: true,
+      updatedAt: 0             // ms timestamp of the last local change (for sync)
     };
   }
   function load() {
@@ -46,10 +47,68 @@
     } catch (e) { /* storage unavailable: start fresh */ }
     return defaults();
   }
-  function save() {
+  function save(opts) {
+    const fromRemote = !!(opts && opts.remote);
+    if (!fromRemote) S.updatedAt = Date.now();
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ }
+    if (!fromRemote) schedulePush();
   }
   const S = load();
+
+  // ---------- Family sync (see sync.js) ----------
+  const SYNC_KEY = 'menuMingguan.syncCode';
+  const sync = { code: null, status: 'off', error: null, available: null, reason: null };
+  try { sync.code = localStorage.getItem(SYNC_KEY); } catch (e) { /* ignore */ }
+  function setSyncCode(code) {
+    sync.code = code;
+    try { if (code) localStorage.setItem(SYNC_KEY, code); else localStorage.removeItem(SYNC_KEY); } catch (e) { /* ignore */ }
+  }
+  const syncReady = () => !!(window.MenuSync && window.MenuSync.available && sync.code);
+  let pushTimer = null;
+  function schedulePush() {
+    if (!syncReady()) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => {
+      pushTimer = null;
+      window.MenuSync.push(sync.code, S).catch((err) => { sync.status = 'error'; sync.error = String(err.message || err); renderIfSync(); });
+    }, 500);
+  }
+  function replaceState(next) {
+    Object.keys(S).forEach((k) => { delete S[k]; });
+    Object.assign(S, defaults(), next);
+  }
+  function applyRemote(state) {
+    if (pushTimer || (state.updatedAt || 0) < (S.updatedAt || 0)) {
+      schedulePush(); // this device has newer changes (e.g. made offline): send them
+      return;
+    }
+    replaceState(state);
+    save({ remote: true });
+    render();
+  }
+  function renderIfSync() { if (ui.view && ui.view.type === 'sync') render(); }
+  function startSync() {
+    if (!syncReady()) return;
+    window.MenuSync.listen(sync.code, {
+      onRemote: applyRemote,
+      onStatus: (status, err) => { sync.status = status; sync.error = err ? String(err.message || err) : null; renderIfSync(); }
+    });
+  }
+  function newFamilyCode() {
+    const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const bytes = new Uint8Array(20);
+    crypto.getRandomValues(bytes);
+    let s = '';
+    bytes.forEach((b, i) => { if (i && i % 5 === 0) s += '-'; s += A[b % A.length]; });
+    return s;
+  }
+  const normCode = (s) => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/(.{5})(?=.)/g, '$1-');
+  window.addEventListener('menusync-ready', () => {
+    sync.available = !!window.MenuSync.available;
+    sync.reason = window.MenuSync.reason || null;
+    if (sync.available && sync.code) { sync.status = 'connecting'; startSync(); }
+    render();
+  });
 
   // ---------- Transient UI state ----------
   const ui = {
@@ -140,7 +199,10 @@
     book: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
     search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>',
     info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>',
-    reset: '<path d="M4 11a8 8 0 1 1 2.3 5.7"/><path d="M4 4v7h7"/>'
+    reset: '<path d="M4 11a8 8 0 1 1 2.3 5.7"/><path d="M4 4v7h7"/>',
+    cloud: '<path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 11a3.75 3.75 0 0 1-.5 7.5z"/>',
+    copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>',
+    share: '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/>'
   };
   const icon = (name, size = 20, extra = '') =>
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${P[name]}</svg>`;
@@ -244,6 +306,7 @@
     if (ui.view && ui.view.type === 'detail') html = viewDetail();
     else if (ui.view && ui.view.type === 'fav') html = viewFavDetail();
     else if (ui.view && ui.view.type === 'reorder') html = viewReorder();
+    else if (ui.view && ui.view.type === 'sync') html = viewSync();
     else html = (ui.tab === 'home' ? viewHome() : ui.tab === 'shop' ? viewShop() : viewFav()) + tabbar();
     if (ui.sheet) html += viewSheet();
     if (ui.toast) html += `<div class="toast" role="status">${esc(ui.toast.text)}${ui.toast.undo ? ' · <button class="text-btn small" style="color:#fff;text-decoration:underline" data-act="undo">Urungkan</button>' : ''}</div>`;
@@ -306,6 +369,7 @@
       <header class="page-head">
         <div><p class="eyebrow">${rangeLabel(p.weekStart)}</p><h1>Minggu Ini</h1></div>
         <div style="display:flex;gap:8px">
+          ${cloudButton()}
           <button type="button" class="icon-btn round" data-act="new-plan" aria-label="Buat menu baru">${icon('spark')}</button>
           <button type="button" class="pill-btn" data-act="reorder">${icon('sort', 18)}Atur</button>
         </div>
@@ -336,7 +400,7 @@
       </button>`;
     }).join('');
     return `<section class="screen">
-      <header class="page-head"><div><p class="eyebrow">Minggu depan · ${rangeLabel(iso(upcomingMonday()))}</p><h1>Menu Mingguan</h1></div></header>
+      <header class="page-head"><div><p class="eyebrow">Minggu depan · ${rangeLabel(iso(upcomingMonday()))}</p><h1>Menu Mingguan</h1></div>${cloudButton()}</header>
       <div class="scroll" data-scroll="empty">
         <section class="card empty">
           <div class="ico">${icon('cal', 26)}</div>
@@ -569,6 +633,67 @@
     </section>`;
   }
 
+  // Family sync ---------------------------------------------------------
+  const SYNC_LABEL = {
+    off: 'Belum tersambung',
+    connecting: 'Menghubungkan…',
+    synced: 'Tersinkron',
+    saving: 'Menyimpan perubahan…',
+    offline: 'Offline — perubahan dikirim saat online',
+    missing: 'Kode tidak ditemukan',
+    error: 'Gagal sinkron'
+  };
+
+  function cloudButton() {
+    const on = !!sync.code;
+    return `<button type="button" class="icon-btn round cloud-btn ${on ? 'on' : ''}" data-act="open-sync" aria-label="Sinkron keluarga${on ? ': ' + SYNC_LABEL[sync.status] : ''}">${icon('cloud')}${on ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>`;
+  }
+
+  function viewSync() {
+    let body;
+    if (sync.available === null) {
+      body = '<p class="hint">Menyiapkan sinkron…</p>';
+    } else if (!sync.available) {
+      body = `<div class="note">${icon('info', 18, 'style="flex-shrink:0;color:var(--accent)"')}<span>${sync.reason === 'not-configured'
+        ? '<strong>Sinkron belum diaktifkan</strong>Proyek Firebase belum dihubungkan ke aplikasi ini.'
+        : '<strong>Sinkron tidak bisa dimuat</strong>Periksa koneksi internet, lalu buka ulang aplikasi.'}</span></div>`;
+    } else if (sync.code) {
+      const st = sync.status;
+      body = `<section class="card sync-card">
+          <p class="sync-status ${st}"><span class="dot" aria-hidden="true"></span>${SYNC_LABEL[st] || st}${st === 'error' && sync.error ? ` <small>(${esc(sync.error)})</small>` : ''}</p>
+          <div><p class="label">Kode keluarga</p><p class="code" aria-label="Kode keluarga ${esc(sync.code.split('').join(' '))}">${esc(sync.code)}</p></div>
+          <div class="sync-actions">
+            <button type="button" class="btn secondary grow" data-act="sync-copy">${icon('copy', 18)}Salin kode</button>
+            <button type="button" class="btn primary grow" data-act="sync-share">${icon('share', 18)}Bagikan link</button>
+          </div>
+        </section>
+        <p class="hint">${icon('info', 18, 'style="flex-shrink:0"')}<span>Di device lain, buka aplikasi ini → ikon awan → <b>Sambungkan</b> dengan kode di atas, atau buka link yang dibagikan. Semua device akan melihat menu, daftar belanja, dan favorit yang sama. Bagikan kode hanya ke keluarga.</span></p>
+        <button type="button" class="text-btn small" style="color:var(--heart);align-self:center" data-act="sync-leave">Putuskan sinkron di device ini</button>`;
+    } else {
+      body = `<p class="hint" style="font-size:14px">Sambungkan beberapa device (kamu dan keluarga) supaya menu minggu ini, centang belanja, dan favorit selalu sama di semua HP.</p>
+        <section class="card sync-card">
+          <h2 class="h2">Mulai dari device ini</h2>
+          <p class="hint" style="padding:0">Data di device ini menjadi data keluarga, lalu kamu mendapat kode untuk device lain.</p>
+          <button type="button" class="btn primary block" data-act="sync-create">${icon('cloud', 18)}Buat kode keluarga</button>
+        </section>
+        <section class="card sync-card">
+          <h2 class="h2">Sudah punya kode?</h2>
+          <label for="sync-code" class="label">Kode keluarga</label>
+          <input id="sync-code" class="code-input" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" value="${esc(ui.joinPrefill || '')}">
+          <button type="button" class="btn secondary block" data-act="sync-join">Sambungkan</button>
+          <p class="hint" style="padding:0">Data di device ini akan diganti dengan data keluarga.</p>
+        </section>`;
+    }
+    return `<section class="screen">
+      <header class="nav-head">
+        <button type="button" class="text-btn accent" data-act="back">${icon('left', 22)}Kembali</button>
+        <h1>Sinkron Keluarga</h1>
+        <span style="width:72px"></span>
+      </header>
+      <div class="scroll" data-scroll="sync" style="padding:12px 20px 24px;display:flex;flex-direction:column;gap:14px">${body}</div>
+    </section>`;
+  }
+
   // Generate sheet ------------------------------------------------------
   function viewSheet() {
     const sh = ui.sheet;
@@ -703,6 +828,53 @@
 
   const actions = {
     'tab': (el) => { ui.tab = el.dataset.tab; ui.view = null; render(); },
+    'open-sync': () => { ui.view = { type: 'sync' }; render(); },
+    'sync-create': () => {
+      const code = newFamilyCode();
+      S.updatedAt = Date.now();
+      window.MenuSync.push(code, S).then(() => {
+        setSyncCode(code);
+        sync.status = 'connecting';
+        startSync();
+        toast('Kode keluarga dibuat');
+      }).catch((err) => toast('Gagal membuat kode: ' + (err.code || err.message || err)));
+    },
+    'sync-join': () => {
+      const input = document.getElementById('sync-code');
+      const code = normCode(input && input.value);
+      if (code.replace(/-/g, '').length < 20) { toast('Kode harus 20 huruf/angka'); return; }
+      window.MenuSync.fetch(code).then((remote) => {
+        if (!remote) { toast('Kode tidak ditemukan'); return; }
+        if (S.plan && !window.confirm('Menu dan daftar belanja di device ini akan diganti dengan data keluarga. Lanjutkan?')) return;
+        setSyncCode(code);
+        replaceState(remote);
+        save({ remote: true });
+        ui.joinPrefill = '';
+        sync.status = 'connecting';
+        startSync();
+        ui.view = null; ui.tab = 'home';
+        toast('Tersambung ke data keluarga');
+      }).catch((err) => toast('Gagal menyambung: ' + (err.code || err.message || err)));
+    },
+    'sync-copy': () => {
+      const done = () => toast('Kode disalin');
+      if (navigator.clipboard) navigator.clipboard.writeText(sync.code).then(done, () => toast(sync.code));
+      else toast(sync.code);
+    },
+    'sync-share': () => {
+      const url = location.origin + location.pathname + '#join=' + sync.code;
+      const text = 'Sambungkan Menu Mingguan keluarga kita: ' + url;
+      if (navigator.share) navigator.share({ title: 'Menu Mingguan', text, url }).catch(() => {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('Link disalin'));
+      else toast(url);
+    },
+    'sync-leave': () => {
+      if (!window.confirm('Putuskan sinkron di device ini? Data tetap tersimpan di device ini dan di device keluarga lainnya.')) return;
+      if (window.MenuSync && window.MenuSync.stop) window.MenuSync.stop();
+      setSyncCode(null);
+      sync.status = 'off';
+      render();
+    },
     'new-plan': () => {
       if (S.plan && !window.confirm('Buat menu baru? Menu dan daftar belanja minggu ini akan diganti.')) return;
       openSheet();
@@ -859,6 +1031,14 @@
   }
   app.addEventListener('pointerup', endDrag);
   app.addEventListener('pointercancel', endDrag);
+
+  // A shared link "…#join=CODE" opens the sync screen with the code filled in.
+  const join = location.hash.match(/^#join=([A-Za-z0-9-]+)/);
+  if (join) {
+    ui.joinPrefill = normCode(join[1]);
+    if (!sync.code) ui.view = { type: 'sync' };
+    history.replaceState(null, '', location.pathname + location.search);
+  }
 
   render();
 })();
