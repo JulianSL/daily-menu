@@ -1,0 +1,525 @@
+{
+  "newIngredients": [],
+  "recipes": [
+    {"id": "perkedel-kentang", "name": "Perkedel Kentang", "type": "side", "timeMinutes": 45, "servings": 4,
+     "ingredients": [
+       {"id": "kentang", "qty": 500, "note": "kupas, potong"},
+       {"id": "telur-ayam", "qty": 1},
+       {"id": "bawang-merah", "qty": 4, "note": "iris, goreng"},
+       {"id": "bawang-putih", "qty": 2, "note": "haluskan"},
+       {"id": "seledri", "qty": 2, "note": "iris halus"},
+       {"id": "pala", "qty": 0.25},
+       {"id": "merica", "qty": 0.5},
+       {"id": "garam", "qty": 1},
+       {"id": "kaldu-bubuk", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 300, "note": "untuk menggoreng"}
+     ],
+     "steps": [
+       "Goreng potongan kentang hingga matang dan berkulit tipis, angkat lalu haluskan selagi panas.",
+       "Campur kentang dengan bawang merah goreng, bawang putih halus, seledri, pala, merica, garam, dan kaldu bubuk.",
+       "Bentuk adonan bulat pipih sekitar 12 buah.",
+       "Kocok telur, celupkan perkedel ke kocokan telur.",
+       "Goreng dalam minyak panas sedang hingga kecokelatan, tiriskan."
+     ]},
+
+    {"id": "tempe-goreng", "name": "Tempe Goreng", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "tempe", "qty": 1, "note": "iris tipis"},
+       {"id": "bawang-putih", "qty": 3, "note": "haluskan"},
+       {"id": "ketumbar", "qty": 0.5},
+       {"id": "garam", "qty": 1},
+       {"id": "minyak-goreng", "qty": 250, "note": "untuk menggoreng"}
+     ],
+     "steps": [
+       "Haluskan bawang putih, campur dengan ketumbar, garam, dan sedikit air.",
+       "Rendam irisan tempe dalam bumbu selama 10 menit.",
+       "Goreng tempe dalam minyak panas hingga kuning kecokelatan dan renyah.",
+       "Angkat dan tiriskan sebelum disajikan."
+     ]},
+
+    {"id": "tumis-tauge-tahu", "name": "Tumis Tauge Tahu", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "tauge", "qty": 250, "note": "siangi"},
+       {"id": "tahu", "qty": 2, "note": "potong dadu, goreng"},
+       {"id": "bawang-merah", "qty": 4, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "cabai-merah-keriting", "qty": 2, "note": "iris serong"},
+       {"id": "daun-bawang", "qty": 1, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Goreng tahu potong dadu hingga kecokelatan, sisihkan.",
+       "Tumis bawang merah, bawang putih, dan cabai hingga harum.",
+       "Masukkan tahu, saus tiram, dan garam, aduk rata.",
+       "Tambahkan tauge dan daun bawang, masak cepat dengan api besar 1–2 menit agar tetap renyah."
+     ]},
+
+    {"id": "tumis-sawi-telur", "name": "Tumis Sawi Telur", "type": "side", "timeMinutes": 15, "servings": 4,
+     "ingredients": [
+       {"id": "sawi-hijau", "qty": 1, "note": "potong-potong"},
+       {"id": "telur-ayam", "qty": 2},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah dan bawang putih hingga harum.",
+       "Masukkan telur, orak-arik hingga setengah matang.",
+       "Tambahkan sawi, saus tiram, garam, dan merica beserta sedikit air.",
+       "Masak hingga sawi layu, angkat."
+     ]},
+
+    {"id": "tumis-kangkung", "name": "Tumis Kangkung", "type": "side", "timeMinutes": 15, "servings": 4,
+     "ingredients": [
+       {"id": "kangkung", "qty": 2, "note": "siangi"},
+       {"id": "bawang-merah", "qty": 4, "note": "iris"},
+       {"id": "bawang-putih", "qty": 3, "note": "iris"},
+       {"id": "cabai-merah-keriting", "qty": 2, "note": "iris serong"},
+       {"id": "terasi", "qty": 0.5},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "gula-pasir", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Cuci kangkung yang sudah disiangi, tiriskan.",
+       "Tumis bawang merah, bawang putih, cabai, dan terasi hingga harum.",
+       "Masukkan kangkung, saus tiram, garam, dan gula.",
+       "Aduk cepat dengan api besar hingga kangkung layu, angkat."
+     ]},
+
+    {"id": "oseng-kacang-panjang-udang", "name": "Oseng Kacang Panjang Udang", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "kacang-panjang", "qty": 1, "note": "potong 3 cm"},
+       {"id": "udang", "qty": 150, "note": "kupas"},
+       {"id": "bawang-merah", "qty": 4, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "cabai-merah-keriting", "qty": 3, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "gula-pasir", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah, bawang putih, dan cabai hingga harum.",
+       "Masukkan udang, masak hingga berubah warna.",
+       "Tambahkan kacang panjang dan sedikit air, aduk rata.",
+       "Bumbui dengan saus tiram, garam, dan gula, masak hingga kacang panjang matang tapi masih renyah."
+     ]},
+
+    {"id": "tumis-jagung-buncis", "name": "Tumis Jagung Buncis", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "jagung-pipil", "qty": 150},
+       {"id": "buncis", "qty": 150, "note": "potong kecil"},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah dan bawang putih hingga harum.",
+       "Masukkan jagung pipil dan buncis, aduk rata.",
+       "Tambahkan sedikit air, saus tiram, garam, dan merica.",
+       "Masak hingga sayuran matang dan air menyusut, angkat."
+     ]},
+
+    {"id": "dadar-jagung", "name": "Dadar Jagung", "type": "side", "timeMinutes": 30, "servings": 4,
+     "ingredients": [
+       {"id": "jagung-manis", "qty": 2, "note": "sisir/serut"},
+       {"id": "telur-ayam", "qty": 1},
+       {"id": "tepung-terigu", "qty": 60},
+       {"id": "tepung-beras", "qty": 20},
+       {"id": "bawang-merah", "qty": 3, "note": "haluskan"},
+       {"id": "bawang-putih", "qty": 2, "note": "haluskan"},
+       {"id": "daun-bawang", "qty": 1, "note": "iris"},
+       {"id": "ketumbar", "qty": 0.25},
+       {"id": "garam", "qty": 0.5},
+       {"id": "kaldu-bubuk", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 250, "note": "untuk menggoreng"}
+     ],
+     "steps": [
+       "Sisir jagung, tumbuk kasar sebagian agar adonan menyatu.",
+       "Campur jagung dengan bawang halus, daun bawang, telur, tepung terigu, tepung beras, ketumbar, garam, dan kaldu bubuk.",
+       "Tambahkan sedikit air bila terlalu kental hingga adonan bisa disendok.",
+       "Panaskan minyak, goreng sesendok adonan hingga kering kecokelatan, tiriskan."
+     ]},
+
+    {"id": "tumis-buncis-telur", "name": "Tumis Buncis Telur", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "buncis", "qty": 250, "note": "iris serong"},
+       {"id": "telur-ayam", "qty": 2},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah dan bawang putih hingga harum.",
+       "Masukkan telur, orak-arik hingga bergumpal.",
+       "Tambahkan buncis dan sedikit air, aduk rata.",
+       "Bumbui dengan saus tiram, garam, dan merica, masak hingga buncis matang."
+     ]},
+
+    {"id": "sayur-lodeh-tahu-labu-siam", "name": "Sayur Lodeh Tahu Labu Siam", "type": "side", "timeMinutes": 35, "servings": 4,
+     "ingredients": [
+       {"id": "labu-siam", "qty": 1, "note": "kupas, potong korek api"},
+       {"id": "tahu", "qty": 2, "note": "potong dadu"},
+       {"id": "santan", "qty": 400},
+       {"id": "bawang-merah", "qty": 5},
+       {"id": "bawang-putih", "qty": 3},
+       {"id": "kemiri", "qty": 2},
+       {"id": "cabai-merah-keriting", "qty": 2, "note": "iris"},
+       {"id": "lengkuas", "qty": 2, "note": "memarkan"},
+       {"id": "daun-salam", "qty": 2},
+       {"id": "garam", "qty": 1},
+       {"id": "gula-pasir", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Haluskan bawang merah, bawang putih, dan kemiri.",
+       "Tumis bumbu halus bersama lengkuas, daun salam, dan cabai hingga harum.",
+       "Tuang santan, masak sambil diaduk agar santan tidak pecah.",
+       "Masukkan labu siam dan tahu, bumbui garam dan gula.",
+       "Masak hingga labu siam empuk, angkat."
+     ]},
+
+    {"id": "oseng-kacang-panjang-tempe", "name": "Oseng Kacang Panjang Tempe", "type": "side", "timeMinutes": 25, "servings": 4,
+     "ingredients": [
+       {"id": "kacang-panjang", "qty": 1, "note": "potong 3 cm"},
+       {"id": "tempe", "qty": 0.5, "note": "potong korek api"},
+       {"id": "bawang-merah", "qty": 4, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "cabai-merah-keriting", "qty": 3, "note": "iris"},
+       {"id": "lengkuas", "qty": 1, "note": "memarkan"},
+       {"id": "daun-salam", "qty": 1},
+       {"id": "kecap-manis", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 100, "note": "untuk menggoreng tempe"}
+     ],
+     "steps": [
+       "Goreng tempe setengah kering, tiriskan.",
+       "Tumis bawang merah, bawang putih, cabai, lengkuas, dan daun salam hingga harum.",
+       "Masukkan kacang panjang dan sedikit air, masak hingga setengah matang.",
+       "Tambahkan tempe, kecap manis, dan garam, aduk hingga bumbu meresap."
+     ]},
+
+    {"id": "tumis-buncis-wortel-tahu", "name": "Tumis Buncis Wortel Tahu", "type": "side", "timeMinutes": 25, "servings": 4,
+     "ingredients": [
+       {"id": "buncis", "qty": 150, "note": "iris serong"},
+       {"id": "wortel", "qty": 1, "note": "potong korek api"},
+       {"id": "tahu", "qty": 2, "note": "potong dadu, goreng"},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Goreng tahu potong dadu hingga kecokelatan, sisihkan.",
+       "Tumis bawang merah dan bawang putih hingga harum.",
+       "Masukkan wortel dan sedikit air, masak sebentar lalu tambahkan buncis.",
+       "Masukkan tahu, saus tiram, garam, dan merica, masak hingga sayuran matang."
+     ]},
+
+    {"id": "sayur-asem", "name": "Sayur Asem", "type": "side", "timeMinutes": 40, "servings": 4,
+     "ingredients": [
+       {"id": "paket-sayur-asem", "qty": 1},
+       {"id": "jagung-manis", "qty": 1, "note": "potong-potong"},
+       {"id": "labu-siam", "qty": 0.5, "note": "potong dadu"},
+       {"id": "kacang-panjang", "qty": 0.5, "note": "potong 3 cm"},
+       {"id": "asam-jawa", "qty": 2},
+       {"id": "bawang-merah", "qty": 5},
+       {"id": "bawang-putih", "qty": 3},
+       {"id": "cabai-merah-keriting", "qty": 2},
+       {"id": "kemiri", "qty": 2},
+       {"id": "terasi", "qty": 0.5},
+       {"id": "lengkuas", "qty": 2, "note": "memarkan"},
+       {"id": "daun-salam", "qty": 2},
+       {"id": "gula-merah", "qty": 30},
+       {"id": "garam", "qty": 1.5}
+     ],
+     "steps": [
+       "Haluskan bawang merah, bawang putih, cabai, kemiri, dan terasi.",
+       "Didihkan air, masukkan bumbu halus, lengkuas, daun salam, kacang tanah, dan nangka muda.",
+       "Masukkan jagung dan melinjo, masak hingga hampir empuk.",
+       "Tambahkan labu siam, kacang panjang, asam jawa, gula merah, dan garam.",
+       "Masak hingga semua sayuran matang, koreksi rasa asam-manis-gurih."
+     ]},
+
+    {"id": "sayur-sop", "name": "Sayur Sop", "type": "side", "timeMinutes": 30, "servings": 4,
+     "ingredients": [
+       {"id": "wortel", "qty": 1, "note": "potong bulat"},
+       {"id": "kentang", "qty": 150, "note": "potong dadu"},
+       {"id": "kol", "qty": 0.25, "note": "potong kasar"},
+       {"id": "buncis", "qty": 50, "note": "potong 3 cm"},
+       {"id": "bawang-putih", "qty": 3, "note": "geprek, tumis"},
+       {"id": "bawang-merah", "qty": 2, "note": "iris, goreng"},
+       {"id": "daun-bawang", "qty": 1, "note": "iris"},
+       {"id": "seledri", "qty": 1, "note": "iris"},
+       {"id": "merica", "qty": 0.5},
+       {"id": "pala", "qty": 0.25},
+       {"id": "garam", "qty": 1},
+       {"id": "kaldu-bubuk", "qty": 1},
+       {"id": "minyak-goreng", "qty": 15}
+     ],
+     "steps": [
+       "Tumis bawang putih hingga harum, tuang air lalu didihkan.",
+       "Masukkan wortel dan kentang, masak hingga setengah empuk.",
+       "Tambahkan buncis dan kol, bumbui merica, pala, garam, dan kaldu bubuk.",
+       "Masak hingga sayuran matang, masukkan daun bawang dan seledri.",
+       "Sajikan dengan taburan bawang merah goreng."
+     ]},
+
+    {"id": "sayur-bayam", "name": "Sayur Bayam", "type": "side", "timeMinutes": 15, "servings": 4,
+     "ingredients": [
+       {"id": "bayam", "qty": 1, "note": "petik daunnya"},
+       {"id": "jagung-manis", "qty": 1, "note": "sisir atau potong"},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 1, "note": "iris"},
+       {"id": "kencur", "qty": 1, "note": "memarkan"},
+       {"id": "garam", "qty": 1},
+       {"id": "gula-pasir", "qty": 0.5}
+     ],
+     "steps": [
+       "Didihkan air bersama bawang merah, bawang putih, dan kencur.",
+       "Masukkan jagung, masak hingga matang.",
+       "Tambahkan bayam, garam, dan gula.",
+       "Masak sebentar hingga bayam layu, segera angkat."
+     ]},
+
+    {"id": "oseng-sawi-putih-jagung", "name": "Oseng Sawi Putih Jagung", "type": "side", "timeMinutes": 15, "servings": 4,
+     "ingredients": [
+       {"id": "sawi-putih", "qty": 0.5, "note": "potong-potong"},
+       {"id": "jagung-pipil", "qty": 100},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah dan bawang putih hingga harum.",
+       "Masukkan jagung pipil dan sedikit air, masak hingga jagung matang.",
+       "Tambahkan sawi putih, saus tiram, garam, dan merica.",
+       "Masak hingga sawi layu, angkat."
+     ]},
+
+    {"id": "tumis-kangkung-telur-puyuh", "name": "Tumis Kangkung Telur Puyuh", "type": "side", "timeMinutes": 25, "servings": 4,
+     "ingredients": [
+       {"id": "kangkung", "qty": 2, "note": "siangi"},
+       {"id": "telur-puyuh", "qty": 10, "note": "rebus, kupas"},
+       {"id": "bawang-merah", "qty": 4, "note": "iris"},
+       {"id": "bawang-putih", "qty": 3, "note": "iris"},
+       {"id": "cabai-merah-keriting", "qty": 2, "note": "iris serong"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "gula-pasir", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Rebus telur puyuh 5 menit, rendam air dingin lalu kupas.",
+       "Tumis bawang merah, bawang putih, dan cabai hingga harum.",
+       "Masukkan telur puyuh dan saus tiram, aduk rata.",
+       "Tambahkan kangkung, garam, dan gula, masak cepat dengan api besar hingga layu."
+     ]},
+
+    {"id": "terong-telur-balado", "name": "Terong Telur Balado", "type": "side", "timeMinutes": 35, "servings": 4,
+     "ingredients": [
+       {"id": "terong", "qty": 2, "note": "potong-potong"},
+       {"id": "telur-ayam", "qty": 4, "note": "rebus, kupas"},
+       {"id": "cabai-merah-keriting", "qty": 8},
+       {"id": "bawang-merah", "qty": 6},
+       {"id": "bawang-putih", "qty": 3},
+       {"id": "tomat", "qty": 1},
+       {"id": "garam", "qty": 1},
+       {"id": "gula-pasir", "qty": 1},
+       {"id": "minyak-goreng", "qty": 250, "note": "untuk menggoreng"}
+     ],
+     "steps": [
+       "Goreng terong sebentar hingga layu, tiriskan; goreng telur rebus hingga kulitnya agak kering.",
+       "Haluskan kasar cabai, bawang merah, bawang putih, dan tomat.",
+       "Tumis bumbu balado dengan sedikit minyak hingga matang dan harum, bumbui garam dan gula.",
+       "Masukkan terong dan telur, aduk hingga terbalut bumbu rata."
+     ]},
+
+    {"id": "tumis-kol-udang", "name": "Tumis Kol Udang", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "kol", "qty": 0.5, "note": "iris kasar"},
+       {"id": "udang", "qty": 150, "note": "kupas"},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 3, "note": "iris"},
+       {"id": "cabai-merah-keriting", "qty": 2, "note": "iris serong"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah, bawang putih, dan cabai hingga harum.",
+       "Masukkan udang, masak hingga berubah warna.",
+       "Tambahkan kol, saus tiram, garam, merica, dan sedikit air.",
+       "Masak hingga kol layu tapi masih renyah, angkat."
+     ]},
+
+    {"id": "tumis-brokoli-bakso", "name": "Tumis Brokoli Bakso", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "brokoli", "qty": 1, "note": "potong per kuntum"},
+       {"id": "bakso", "qty": 10, "note": "belah dua"},
+       {"id": "bawang-putih", "qty": 3, "note": "cincang"},
+       {"id": "bawang-bombay", "qty": 0.5, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1.5},
+       {"id": "tepung-maizena", "qty": 1, "note": "larutkan dengan sedikit air"},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Rebus brokoli sebentar 1 menit, tiriskan.",
+       "Tumis bawang putih dan bawang bombay hingga harum.",
+       "Masukkan bakso dan sedikit air, bumbui saus tiram, garam, dan merica.",
+       "Tambahkan brokoli, kentalkan dengan larutan maizena, aduk rata lalu angkat."
+     ]},
+
+    {"id": "tumis-sawi-bawang-putih", "name": "Tumis Sawi Bawang Putih", "type": "side", "timeMinutes": 10, "servings": 4,
+     "ingredients": [
+       {"id": "sawi-hijau", "qty": 1, "note": "potong-potong"},
+       {"id": "bawang-putih", "qty": 6, "note": "cincang"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang putih cincang dengan api sedang hingga harum dan kekuningan.",
+       "Masukkan batang sawi terlebih dahulu, aduk sebentar.",
+       "Tambahkan daun sawi, saus tiram, garam, dan sedikit air.",
+       "Masak cepat hingga sawi layu, angkat."
+     ]},
+
+    {"id": "sayur-bobor-bayam", "name": "Sayur Bobor Bayam", "type": "side", "timeMinutes": 25, "servings": 4,
+     "ingredients": [
+       {"id": "bayam", "qty": 1, "note": "petik daunnya"},
+       {"id": "labu-siam", "qty": 0.5, "note": "potong korek api"},
+       {"id": "santan", "qty": 300},
+       {"id": "bawang-merah", "qty": 5},
+       {"id": "bawang-putih", "qty": 2},
+       {"id": "kemiri", "qty": 2},
+       {"id": "kencur", "qty": 2},
+       {"id": "ketumbar", "qty": 0.5},
+       {"id": "daun-salam", "qty": 2},
+       {"id": "lengkuas", "qty": 1, "note": "memarkan"},
+       {"id": "garam", "qty": 1},
+       {"id": "gula-pasir", "qty": 0.5}
+     ],
+     "steps": [
+       "Haluskan bawang merah, bawang putih, kemiri, kencur, dan ketumbar.",
+       "Rebus santan bersama bumbu halus, daun salam, dan lengkuas sambil diaduk.",
+       "Masukkan labu siam, masak hingga empuk.",
+       "Tambahkan bayam, garam, dan gula, masak sebentar hingga bayam layu, angkat."
+     ]},
+
+    {"id": "capcay-bakso", "name": "Capcay Bakso", "type": "side", "timeMinutes": 25, "servings": 4,
+     "ingredients": [
+       {"id": "bakso", "qty": 10, "note": "belah dua"},
+       {"id": "wortel", "qty": 1, "note": "iris serong"},
+       {"id": "sawi-hijau", "qty": 0.5, "note": "potong-potong"},
+       {"id": "kembang-kol", "qty": 0.25, "note": "potong per kuntum"},
+       {"id": "kol", "qty": 0.25, "note": "potong kasar"},
+       {"id": "bawang-putih", "qty": 3, "note": "cincang"},
+       {"id": "bawang-bombay", "qty": 0.5, "note": "iris"},
+       {"id": "saus-tiram", "qty": 2},
+       {"id": "kecap-asin", "qty": 1},
+       {"id": "tepung-maizena", "qty": 1, "note": "larutkan dengan sedikit air"},
+       {"id": "merica", "qty": 0.25},
+       {"id": "garam", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang putih dan bawang bombay hingga harum.",
+       "Masukkan bakso dan wortel, tambahkan sedikit air, masak hingga wortel setengah matang.",
+       "Masukkan kembang kol, kol, lalu sawi; bumbui saus tiram, kecap asin, merica, dan garam.",
+       "Kentalkan dengan larutan maizena, aduk hingga kuah mengental dan sayuran matang."
+     ]},
+
+    {"id": "brokoli-rebus", "name": "Brokoli Rebus", "type": "side", "timeMinutes": 10, "servings": 4,
+     "ingredients": [
+       {"id": "brokoli", "qty": 1, "note": "potong per kuntum"},
+       {"id": "bawang-putih", "qty": 2, "note": "cincang, goreng"},
+       {"id": "garam", "qty": 1},
+       {"id": "minyak-goreng", "qty": 15}
+     ],
+     "steps": [
+       "Didihkan air dengan garam.",
+       "Masukkan brokoli, rebus 2–3 menit hingga hijau cerah dan masih renyah.",
+       "Angkat, tiriskan, lalu siram dengan bawang putih goreng beserta minyaknya."
+     ]},
+
+    {"id": "tumis-buncis-udang", "name": "Tumis Buncis Udang", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "buncis", "qty": 200, "note": "iris serong"},
+       {"id": "udang", "qty": 150, "note": "kupas"},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 3, "note": "iris"},
+       {"id": "cabai-merah-keriting", "qty": 2, "note": "iris serong"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah, bawang putih, dan cabai hingga harum.",
+       "Masukkan udang, masak hingga berubah warna.",
+       "Tambahkan buncis dan sedikit air, bumbui saus tiram, garam, dan merica.",
+       "Masak hingga buncis matang tapi masih renyah, angkat."
+     ]},
+
+    {"id": "perkedel-tahu", "name": "Perkedel Tahu", "type": "side", "timeMinutes": 30, "servings": 4,
+     "ingredients": [
+       {"id": "tahu", "qty": 4, "note": "hancurkan"},
+       {"id": "telur-ayam", "qty": 1},
+       {"id": "wortel", "qty": 0.5, "note": "parut"},
+       {"id": "daun-bawang", "qty": 1, "note": "iris"},
+       {"id": "bawang-merah", "qty": 3, "note": "haluskan"},
+       {"id": "bawang-putih", "qty": 2, "note": "haluskan"},
+       {"id": "tepung-terigu", "qty": 30},
+       {"id": "merica", "qty": 0.25},
+       {"id": "garam", "qty": 1},
+       {"id": "kaldu-bubuk", "qty": 0.5},
+       {"id": "minyak-goreng", "qty": 250, "note": "untuk menggoreng"}
+     ],
+     "steps": [
+       "Hancurkan tahu, peras sedikit airnya.",
+       "Campur tahu dengan bawang halus, wortel, daun bawang, telur, tepung, merica, garam, dan kaldu bubuk.",
+       "Bentuk adonan bulat pipih.",
+       "Goreng dalam minyak panas sedang hingga kecokelatan, tiriskan."
+     ]},
+
+    {"id": "tumis-buncis-wortel", "name": "Tumis Buncis Wortel", "type": "side", "timeMinutes": 20, "servings": 4,
+     "ingredients": [
+       {"id": "buncis", "qty": 200, "note": "iris serong"},
+       {"id": "wortel", "qty": 1, "note": "potong korek api"},
+       {"id": "bawang-merah", "qty": 3, "note": "iris"},
+       {"id": "bawang-putih", "qty": 2, "note": "iris"},
+       {"id": "saus-tiram", "qty": 1},
+       {"id": "garam", "qty": 0.5},
+       {"id": "merica", "qty": 0.25},
+       {"id": "minyak-goreng", "qty": 30}
+     ],
+     "steps": [
+       "Tumis bawang merah dan bawang putih hingga harum.",
+       "Masukkan wortel dan sedikit air, masak hingga setengah empuk.",
+       "Tambahkan buncis, saus tiram, garam, dan merica.",
+       "Masak hingga sayuran matang dan air menyusut, angkat."
+     ]}
+  ]
+}

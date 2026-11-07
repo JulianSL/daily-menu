@@ -1,0 +1,597 @@
+{
+  "_info": "Daftar menu dan pasangan default. recipeId merujuk ke data/recipes.json. Menu utama 'user' = koleksi kamu, 'online' = variasi resep online.",
+  "mains": [
+    {
+      "id": "rawon-daging",
+      "name": "Rawon Daging",
+      "source": "user",
+      "defaultSideId": "tempe-goreng",
+      "kidFriendly": true
+    },
+    {
+      "id": "kare-ayam",
+      "name": "Kare Ayam",
+      "source": "user",
+      "defaultSideId": "perkedel-kentang",
+      "kidFriendly": true
+    },
+    {
+      "id": "soto-daging",
+      "name": "Soto Daging",
+      "source": "user",
+      "defaultSideId": "perkedel-tahu",
+      "kidFriendly": true
+    },
+    {
+      "id": "soto-betawi",
+      "name": "Soto Betawi",
+      "source": "user",
+      "defaultSideId": "perkedel-kentang",
+      "kidFriendly": true
+    },
+    {
+      "id": "ayam-suwir-sambal-matah",
+      "name": "Ayam Suwir Sambal Matah",
+      "source": "user",
+      "defaultSideId": "tumis-buncis-wortel",
+      "kidFriendly": false
+    },
+    {
+      "id": "ayam-teriyaki",
+      "name": "Ayam Teriyaki",
+      "source": "user",
+      "defaultSideId": "brokoli-rebus",
+      "kidFriendly": true
+    },
+    {
+      "id": "bandeng-presto",
+      "name": "Bandeng Presto",
+      "source": "user",
+      "defaultSideId": "sayur-asem",
+      "kidFriendly": true
+    },
+    {
+      "id": "tongkol-tomat-cabe-hijau",
+      "name": "Tongkol Tomat Cabe Hijau",
+      "source": "user",
+      "defaultSideId": "tumis-kangkung",
+      "kidFriendly": false
+    },
+    {
+      "id": "tongkol-balado",
+      "name": "Tongkol Balado",
+      "source": "user",
+      "defaultSideId": "sayur-bayam",
+      "kidFriendly": false
+    },
+    {
+      "id": "ayam-goreng-lengkuas",
+      "name": "Ayam Goreng Lengkuas",
+      "source": "user",
+      "defaultSideId": "tumis-kangkung",
+      "kidFriendly": true
+    },
+    {
+      "id": "krengsengan-daging",
+      "name": "Krengsengan Daging",
+      "source": "user",
+      "defaultSideId": "tumis-jagung-buncis",
+      "kidFriendly": false
+    },
+    {
+      "id": "tumis-ikan-kembung-tomat-cabe-hijau",
+      "name": "Tumis Ikan Kembung Tomat Cabe Hijau",
+      "source": "user",
+      "defaultSideId": "sayur-bayam",
+      "kidFriendly": false
+    },
+    {
+      "id": "opor-ayam",
+      "name": "Opor Ayam",
+      "source": "user",
+      "defaultSideId": "tumis-buncis-telur",
+      "kidFriendly": true
+    },
+    {
+      "id": "soto-ayam",
+      "name": "Soto Ayam",
+      "source": "user",
+      "defaultSideId": "dadar-jagung",
+      "kidFriendly": true
+    },
+    {
+      "id": "semur-daging-kentang",
+      "name": "Semur Daging Kentang",
+      "source": "user",
+      "defaultSideId": "tumis-sawi-bawang-putih",
+      "kidFriendly": true
+    },
+    {
+      "id": "sop-ayam-klaten",
+      "name": "Sop Ayam Klaten",
+      "source": "user",
+      "defaultSideId": "tempe-goreng",
+      "kidFriendly": true
+    },
+    {
+      "id": "ayam-goreng-ketumbar",
+      "name": "Ayam Goreng Ketumbar",
+      "source": "user",
+      "defaultSideId": "sayur-asem",
+      "kidFriendly": true
+    },
+    {
+      "id": "empal-goreng",
+      "name": "Empal Goreng",
+      "source": "user",
+      "defaultSideId": "sayur-lodeh-tahu-labu-siam",
+      "kidFriendly": true
+    },
+    {
+      "id": "asem-asem-iga-sapi",
+      "name": "Asem Asem Iga Sapi",
+      "source": "user",
+      "defaultSideId": "tempe-goreng",
+      "kidFriendly": true
+    },
+    {
+      "id": "telur-puyuh-udang-balado",
+      "name": "Telur Puyuh Udang Balado",
+      "source": "user",
+      "defaultSideId": "tumis-buncis-wortel-tahu",
+      "kidFriendly": false
+    },
+    {
+      "id": "beef-yakiniku",
+      "name": "Beef Yakiniku",
+      "source": "user",
+      "defaultSideId": "tumis-sawi-bawang-putih",
+      "kidFriendly": true
+    },
+    {
+      "id": "beef-enoki",
+      "name": "Beef Enoki",
+      "source": "user",
+      "defaultSideId": "tumis-buncis-wortel",
+      "kidFriendly": true
+    },
+    {
+      "id": "ayam-kecap",
+      "name": "Ayam Kecap",
+      "source": "user",
+      "defaultSideId": "terong-telur-balado",
+      "kidFriendly": true
+    },
+    {
+      "id": "ayam-kecap-rica",
+      "name": "Ayam Kecap Rica",
+      "source": "user",
+      "defaultSideId": "oseng-kacang-panjang-tempe",
+      "kidFriendly": false
+    },
+    {
+      "id": "udang-goreng-crispy",
+      "name": "Udang Goreng Crispy",
+      "source": "user",
+      "defaultSideId": "capcay-bakso",
+      "kidFriendly": true
+    },
+    {
+      "id": "ayam-mentega",
+      "name": "Ayam Mentega",
+      "source": "user",
+      "defaultSideId": "brokoli-rebus",
+      "kidFriendly": true
+    },
+    {
+      "id": "balado-udang-kentang",
+      "name": "Balado Udang Kentang",
+      "source": "user",
+      "defaultSideId": "sayur-bayam",
+      "kidFriendly": false
+    },
+    {
+      "id": "oseng-sapi-mercon",
+      "name": "Oseng Sapi Mercon",
+      "source": "user",
+      "defaultSideId": "tumis-tauge-tahu",
+      "kidFriendly": false
+    },
+    {
+      "id": "beef-black-pepper",
+      "name": "Beef Black Pepper",
+      "source": "user",
+      "defaultSideId": "tumis-buncis-wortel",
+      "kidFriendly": false
+    },
+    {
+      "id": "tahu-cabe-garam",
+      "name": "Tahu Cabe Garam",
+      "source": "user",
+      "defaultSideId": "sayur-sop",
+      "kidFriendly": false
+    },
+    {
+      "id": "daging-cah-kailan",
+      "name": "Daging Cah Kailan",
+      "source": "user",
+      "defaultSideId": "perkedel-tahu",
+      "kidFriendly": false
+    },
+    {
+      "id": "steak-ayam-crispy",
+      "name": "Steak Ayam Crispy",
+      "source": "user",
+      "defaultSideId": "brokoli-rebus",
+      "kidFriendly": true
+    },
+    {
+      "id": "chicken-salted-egg",
+      "name": "Chicken Salted Egg",
+      "source": "user",
+      "defaultSideId": "tumis-brokoli-bakso",
+      "kidFriendly": false
+    },
+    {
+      "id": "ayam-goreng-ungkep",
+      "name": "Ayam Goreng Ungkep",
+      "source": "user",
+      "defaultSideId": "sayur-asem",
+      "kidFriendly": true
+    },
+    {
+      "id": "bihun-goreng-ayam",
+      "name": "Bihun Goreng Ayam",
+      "source": "user",
+      "defaultSideId": "tumis-sawi-telur",
+      "kidFriendly": true
+    },
+    {
+      "id": "ayam-spicy-wing",
+      "name": "Ayam Spicy Wing",
+      "source": "user",
+      "defaultSideId": "tumis-sawi-bawang-putih",
+      "kidFriendly": false
+    },
+    {
+      "id": "lele-goreng",
+      "name": "Lele Goreng",
+      "source": "user",
+      "defaultSideId": "sayur-asem",
+      "kidFriendly": true
+    },
+    {
+      "id": "ikan-kembung-colo-colo",
+      "name": "Ikan Kembung Colo Colo",
+      "source": "user",
+      "defaultSideId": "tumis-kangkung",
+      "kidFriendly": false
+    },
+    {
+      "id": "sambal-goreng-kentang-ampela",
+      "name": "Sambal Goreng Kentang Ampela",
+      "source": "user",
+      "defaultSideId": "sayur-sop",
+      "kidFriendly": false
+    },
+    {
+      "id": "oseng-tempe-tahu-ampela",
+      "name": "Oseng Tempe Tahu Ampela",
+      "source": "user",
+      "defaultSideId": "sayur-bayam",
+      "kidFriendly": false
+    },
+    {
+      "id": "tumis-cecek-tahu",
+      "name": "Tumis Cecek Tahu",
+      "source": "user",
+      "defaultSideId": "sayur-bobor-bayam",
+      "kidFriendly": false
+    },
+    {
+      "id": "oseng-tempe",
+      "name": "Oseng Tempe",
+      "source": "user",
+      "defaultSideId": "dadar-jagung",
+      "kidFriendly": false
+    },
+    {
+      "id": "ceker-rica-rica",
+      "name": "Ceker Rica-Rica",
+      "source": "user",
+      "defaultSideId": "tumis-kangkung-telur-puyuh",
+      "kidFriendly": false
+    },
+    {
+      "id": "ikan-patin-kuah-bumbu-kuning",
+      "name": "Ikan Patin Kuah Bumbu Kuning",
+      "source": "user",
+      "defaultSideId": "tempe-goreng",
+      "kidFriendly": false
+    },
+    {
+      "id": "udang-saos-tiram",
+      "name": "Udang Saos Tiram",
+      "source": "user",
+      "defaultSideId": "oseng-sawi-putih-jagung",
+      "kidFriendly": true
+    },
+    {
+      "id": "semur-tahu-telur",
+      "name": "Semur Tahu Telur",
+      "source": "user",
+      "defaultSideId": "perkedel-kentang",
+      "kidFriendly": true
+    },
+    {
+      "id": "krengsengan-ayam",
+      "name": "Krengsengan Ayam",
+      "source": "user",
+      "defaultSideId": "tumis-kol-udang",
+      "kidFriendly": false
+    },
+    {
+      "id": "ayam-geprek",
+      "name": "Ayam Geprek",
+      "source": "user",
+      "defaultSideId": "sayur-sop",
+      "kidFriendly": false
+    },
+    {
+      "id": "ayam-suwir-bumbu-balado",
+      "name": "Ayam Suwir Bumbu Balado",
+      "source": "user",
+      "defaultSideId": "tumis-buncis-udang",
+      "kidFriendly": false
+    },
+    {
+      "id": "ayam-lada-hitam",
+      "name": "Ayam Lada Hitam",
+      "source": "user",
+      "defaultSideId": "oseng-kacang-panjang-udang",
+      "kidFriendly": false
+    },
+    {
+      "id": "rendang-daging",
+      "name": "Rendang Daging",
+      "source": "online",
+      "defaultSideId": "sayur-lodeh-tahu-labu-siam",
+      "kidFriendly": false
+    },
+    {
+      "id": "sop-iga-sapi",
+      "name": "Sop Iga Sapi",
+      "source": "online",
+      "defaultSideId": "perkedel-kentang",
+      "kidFriendly": true
+    },
+    {
+      "id": "ikan-nila-bakar-kecap",
+      "name": "Ikan Nila Bakar Kecap",
+      "source": "online",
+      "defaultSideId": "sayur-asem",
+      "kidFriendly": false
+    },
+    {
+      "id": "udang-balado",
+      "name": "Udang Balado",
+      "source": "online",
+      "defaultSideId": "tempe-goreng",
+      "kidFriendly": false
+    },
+    {
+      "id": "pepes-ikan-kembung",
+      "name": "Pepes Ikan Kembung",
+      "source": "online",
+      "defaultSideId": "sayur-bobor-bayam",
+      "kidFriendly": true
+    },
+    {
+      "id": "ayam-bakar-taliwang",
+      "name": "Ayam Bakar Taliwang",
+      "source": "online",
+      "defaultSideId": "tumis-kangkung",
+      "kidFriendly": false
+    },
+    {
+      "id": "gulai-ikan-tongkol",
+      "name": "Gulai Ikan Tongkol",
+      "source": "online",
+      "defaultSideId": "tumis-buncis-wortel",
+      "kidFriendly": false
+    },
+    {
+      "id": "telur-balado",
+      "name": "Telur Balado",
+      "source": "online",
+      "defaultSideId": "sayur-sop",
+      "kidFriendly": false
+    },
+    {
+      "id": "cumi-hitam",
+      "name": "Cumi Hitam",
+      "source": "online",
+      "defaultSideId": "tumis-sawi-bawang-putih",
+      "kidFriendly": false
+    }
+  ],
+  "sides": [
+    {
+      "id": "perkedel-kentang",
+      "name": "Perkedel Kentang",
+      "source": "user"
+    },
+    {
+      "id": "tempe-goreng",
+      "name": "Tempe Goreng",
+      "source": "user"
+    },
+    {
+      "id": "tumis-tauge-tahu",
+      "name": "Tumis Tauge Tahu",
+      "source": "user"
+    },
+    {
+      "id": "tumis-sawi-telur",
+      "name": "Tumis Sawi Telur",
+      "source": "user"
+    },
+    {
+      "id": "tumis-kangkung",
+      "name": "Tumis Kangkung",
+      "source": "user"
+    },
+    {
+      "id": "oseng-kacang-panjang-udang",
+      "name": "Oseng Kacang Panjang Udang",
+      "source": "user"
+    },
+    {
+      "id": "tumis-jagung-buncis",
+      "name": "Tumis Jagung Buncis",
+      "source": "user"
+    },
+    {
+      "id": "dadar-jagung",
+      "name": "Dadar Jagung",
+      "source": "user"
+    },
+    {
+      "id": "tumis-buncis-telur",
+      "name": "Tumis Buncis Telur",
+      "source": "user"
+    },
+    {
+      "id": "sayur-lodeh-tahu-labu-siam",
+      "name": "Sayur Lodeh Tahu Labu Siam",
+      "source": "user"
+    },
+    {
+      "id": "oseng-kacang-panjang-tempe",
+      "name": "Oseng Kacang Panjang Tempe",
+      "source": "user"
+    },
+    {
+      "id": "tumis-buncis-wortel-tahu",
+      "name": "Tumis Buncis Wortel Tahu",
+      "source": "user"
+    },
+    {
+      "id": "sayur-asem",
+      "name": "Sayur Asem",
+      "source": "user"
+    },
+    {
+      "id": "sayur-sop",
+      "name": "Sayur Sop",
+      "source": "user"
+    },
+    {
+      "id": "sayur-bayam",
+      "name": "Sayur Bayam",
+      "source": "user"
+    },
+    {
+      "id": "oseng-sawi-putih-jagung",
+      "name": "Oseng Sawi Putih Jagung",
+      "source": "user"
+    },
+    {
+      "id": "tumis-kangkung-telur-puyuh",
+      "name": "Tumis Kangkung Telur Puyuh",
+      "source": "user"
+    },
+    {
+      "id": "terong-telur-balado",
+      "name": "Terong Telur Balado",
+      "source": "user"
+    },
+    {
+      "id": "tumis-kol-udang",
+      "name": "Tumis Kol Udang",
+      "source": "user"
+    },
+    {
+      "id": "tumis-brokoli-bakso",
+      "name": "Tumis Brokoli Bakso",
+      "source": "user"
+    },
+    {
+      "id": "tumis-sawi-bawang-putih",
+      "name": "Tumis Sawi Bawang Putih",
+      "source": "user"
+    },
+    {
+      "id": "sayur-bobor-bayam",
+      "name": "Sayur Bobor Bayam",
+      "source": "user"
+    },
+    {
+      "id": "capcay-bakso",
+      "name": "Capcay Bakso",
+      "source": "user"
+    },
+    {
+      "id": "brokoli-rebus",
+      "name": "Brokoli Rebus",
+      "source": "user"
+    },
+    {
+      "id": "tumis-buncis-udang",
+      "name": "Tumis Buncis Udang",
+      "source": "user"
+    },
+    {
+      "id": "perkedel-tahu",
+      "name": "Perkedel Tahu",
+      "source": "user"
+    },
+    {
+      "id": "tumis-buncis-wortel",
+      "name": "Tumis Buncis Wortel",
+      "source": "user"
+    }
+  ],
+  "kids": [
+    {
+      "id": "sup-makaroni-ayam",
+      "name": "Sup Makaroni Ayam"
+    },
+    {
+      "id": "bola-bola-tahu-ayam",
+      "name": "Bola-bola Tahu Ayam"
+    },
+    {
+      "id": "telur-dadar-gulung-sayur",
+      "name": "Telur Dadar Gulung Sayur"
+    },
+    {
+      "id": "nugget-ayam-rumahan",
+      "name": "Nugget Ayam Rumahan"
+    },
+    {
+      "id": "sop-bakso-sapi",
+      "name": "Sop Bakso Sapi"
+    },
+    {
+      "id": "ikan-kukus-kecap-manis",
+      "name": "Ikan Kukus Kecap Manis"
+    },
+    {
+      "id": "bubur-ayam-wortel",
+      "name": "Bubur Ayam Wortel"
+    },
+    {
+      "id": "perkedel-kentang-daging",
+      "name": "Perkedel Kentang Daging"
+    }
+  ],
+  "favorites": [
+    "rendang-daging",
+    "soto-ayam",
+    "ayam-goreng-lengkuas",
+    "opor-ayam",
+    "pepes-ikan-kembung",
+    "empal-goreng"
+  ]
+}

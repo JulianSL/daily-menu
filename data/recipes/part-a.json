@@ -1,0 +1,2875 @@
+{
+ "newIngredients": [
+  {
+   "id": "petis",
+   "name": "Petis Udang",
+   "category": "bumbu",
+   "unit": "sdm"
+  },
+  {
+   "id": "mirin",
+   "name": "Mirin",
+   "category": "misc",
+   "unit": "sdm"
+  }
+ ],
+ "recipes": [
+  {
+   "id": "rawon-daging",
+   "name": "Rawon Daging",
+   "type": "main",
+   "timeMinutes": 120,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi",
+     "qty": 600,
+     "note": "potong dadu"
+    },
+    {
+     "id": "kluwek",
+     "qty": 5,
+     "note": "ambil isinya, rendam air panas"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 4,
+     "note": "sangrai, haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 2,
+     "note": "bakar, haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 5
+    },
+    {
+     "id": "daun-salam",
+     "qty": 3
+    },
+    {
+     "id": "tauge",
+     "qty": 100,
+     "note": "siangi"
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 1
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus daging hingga mendidih, buang air pertama, lalu rebus kembali dengan air baru hingga empuk (sekitar 60 menit).",
+    "Haluskan bawang merah, bawang putih, kemiri, kunyit, ketumbar, dan isi kluwek.",
+    "Tumis bumbu halus dengan jahe, lengkuas, serai, daun jeruk, dan daun salam hingga harum dan matang.",
+    "Masukkan tumisan bumbu ke rebusan daging, aduk rata.",
+    "Bumbui garam, gula, dan kaldu bubuk; masak dengan api kecil 20 menit hingga bumbu meresap.",
+    "Tambahkan irisan daun bawang, sajikan dengan tauge pendek di atasnya."
+   ]
+  },
+  {
+   "id": "kare-ayam",
+   "name": "Kare Ayam",
+   "type": "main",
+   "timeMinutes": 60,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 1000,
+     "note": "potong 12"
+    },
+    {
+     "id": "kentang",
+     "qty": 300,
+     "note": "potong dadu"
+    },
+    {
+     "id": "santan",
+     "qty": 500
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "jintan",
+     "qty": 0.5,
+     "note": "haluskan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 4
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 1
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Haluskan bawang merah, bawang putih, kemiri, kunyit, jahe, ketumbar, dan jintan.",
+    "Tumis bumbu halus bersama lengkuas, serai, daun jeruk, dan daun salam hingga harum.",
+    "Masukkan ayam, aduk hingga berubah warna dan terbalut bumbu.",
+    "Tuang sedikit air dan masukkan kentang, masak hingga ayam dan kentang hampir empuk.",
+    "Tuang santan, aduk terus agar tidak pecah, bumbui garam, gula, dan kaldu bubuk.",
+    "Masak dengan api kecil hingga kuah sedikit mengental, koreksi rasa, lalu sajikan."
+   ]
+  },
+  {
+   "id": "soto-daging",
+   "name": "Soto Daging",
+   "type": "main",
+   "timeMinutes": 100,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi",
+     "qty": 500,
+     "note": "potong dadu"
+    },
+    {
+     "id": "tauge",
+     "qty": 100,
+     "note": "seduh"
+    },
+    {
+     "id": "kol",
+     "qty": 0.25,
+     "note": "iris halus"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "merica",
+     "qty": 0.5
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 4
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "seledri",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 2
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus daging hingga empuk (sekitar 60 menit), sisihkan kaldunya.",
+    "Haluskan bawang merah, bawang putih, kemiri, kunyit, jahe, ketumbar, dan merica.",
+    "Tumis bumbu halus dengan lengkuas, serai, daun jeruk, dan daun salam hingga harum.",
+    "Masukkan tumisan ke kaldu daging, bumbui garam dan kaldu bubuk, masak 15 menit dengan api kecil.",
+    "Tambahkan daun bawang dan seledri sesaat sebelum diangkat.",
+    "Sajikan kuah soto dengan tauge, kol, dan perasan jeruk nipis."
+   ]
+  },
+  {
+   "id": "soto-betawi",
+   "name": "Soto Betawi",
+   "type": "main",
+   "timeMinutes": 100,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi",
+     "qty": 500,
+     "note": "potong dadu"
+    },
+    {
+     "id": "santan",
+     "qty": 400
+    },
+    {
+     "id": "susu-cair",
+     "qty": 200
+    },
+    {
+     "id": "kentang",
+     "qty": 250,
+     "note": "goreng, potong"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "potong"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "merica",
+     "qty": 0.5,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 3
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 3
+    },
+    {
+     "id": "kayu-manis",
+     "qty": 1
+    },
+    {
+     "id": "cengkeh",
+     "qty": 3
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "emping",
+     "qty": 50,
+     "note": "goreng"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 2
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus daging hingga empuk, angkat dan potong-potong, sisihkan kaldunya.",
+    "Haluskan bawang merah, bawang putih, kemiri, ketumbar, merica, jahe, dan kunyit.",
+    "Tumis bumbu halus dengan lengkuas, serai, daun salam, daun jeruk, kayu manis, dan cengkeh hingga harum.",
+    "Masukkan tumisan dan daging ke kaldu, lalu tuang santan dan susu sambil diaduk agar tidak pecah.",
+    "Bumbui garam dan kaldu bubuk, masak dengan api kecil 15 menit.",
+    "Sajikan dengan kentang goreng, tomat, daun bawang, emping, dan perasan jeruk nipis."
+   ]
+  },
+  {
+   "id": "ayam-suwir-sambal-matah",
+   "name": "Ayam Suwir Sambal Matah",
+   "type": "main",
+   "timeMinutes": 45,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-fillet",
+     "qty": 600
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "merica",
+     "qty": 0.5
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 12,
+     "note": "iris tipis"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 12,
+     "note": "iris"
+    },
+    {
+     "id": "serai",
+     "qty": 3,
+     "note": "iris tipis bagian putih"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 6,
+     "note": "iris halus"
+    },
+    {
+     "id": "terasi",
+     "qty": 0.5,
+     "note": "bakar"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 0.5
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 60
+    }
+   ],
+   "steps": [
+    "Lumuri ayam dengan bawang putih halus, garam, dan merica, diamkan 15 menit.",
+    "Rebus atau kukus ayam hingga matang, lalu goreng sebentar dan suwir-suwir.",
+    "Campur bawang merah, cabai rawit, serai, dan daun jeruk iris dalam mangkuk.",
+    "Tambahkan terasi bakar, garam, gula, dan perasan jeruk nipis, remas perlahan.",
+    "Panaskan minyak hingga sangat panas, siramkan ke campuran sambal, aduk rata.",
+    "Campurkan ayam suwir dengan sambal matah, sajikan."
+   ]
+  },
+  {
+   "id": "ayam-teriyaki",
+   "name": "Ayam Teriyaki",
+   "type": "main",
+   "timeMinutes": 35,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "paha-ayam-fillet",
+     "qty": 600,
+     "note": "potong dadu"
+    },
+    {
+     "id": "bawang-bombay",
+     "qty": 1,
+     "note": "iris"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "cincang"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "parut"
+    },
+    {
+     "id": "kecap-asin",
+     "qty": 3
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 2
+    },
+    {
+     "id": "mirin",
+     "qty": 2
+    },
+    {
+     "id": "madu",
+     "qty": 1
+    },
+    {
+     "id": "saus-tiram",
+     "qty": 1
+    },
+    {
+     "id": "tepung-maizena",
+     "qty": 1,
+     "note": "larutkan"
+    },
+    {
+     "id": "wijen",
+     "qty": 1,
+     "note": "sangrai"
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Marinasi ayam dengan kecap asin, mirin, madu, jahe, dan bawang putih selama 15 menit.",
+    "Tumis bawang bombay dengan sedikit minyak hingga layu dan harum.",
+    "Masukkan ayam beserta bumbu marinasinya, masak hingga ayam berubah warna.",
+    "Tambahkan kecap manis, saus tiram, dan sedikit air, masak hingga ayam matang.",
+    "Kentalkan dengan larutan maizena, aduk hingga saus mengilap.",
+    "Taburi wijen sangrai dan sajikan."
+   ]
+  },
+  {
+   "id": "bandeng-presto",
+   "name": "Bandeng Presto",
+   "type": "main",
+   "timeMinutes": 30,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "bandeng-presto",
+     "qty": 2,
+     "note": "potong 2-3 bagian"
+    },
+    {
+     "id": "telur-ayam",
+     "qty": 2,
+     "note": "kocok"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 0.5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "garam",
+     "qty": 1
+    },
+    {
+     "id": "tepung-terigu",
+     "qty": 50
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 300
+    }
+   ],
+   "steps": [
+    "Haluskan bawang putih, ketumbar, kunyit, dan garam.",
+    "Lumuri bandeng presto dengan bumbu halus, diamkan 10 menit.",
+    "Campur telur kocok dengan tepung terigu dan sedikit garam hingga menjadi adonan pencelup.",
+    "Celupkan bandeng ke adonan telur.",
+    "Goreng dalam minyak panas dengan api sedang hingga kuning kecokelatan, angkat dan tiriskan."
+   ]
+  },
+  {
+   "id": "tongkol-tomat-cabe-hijau",
+   "name": "Tongkol Tomat Cabe Hijau",
+   "type": "main",
+   "timeMinutes": 35,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ikan-tongkol",
+     "qty": 500,
+     "note": "potong, goreng"
+    },
+    {
+     "id": "cabai-hijau",
+     "qty": 10,
+     "note": "iris serong"
+    },
+    {
+     "id": "tomat-hijau",
+     "qty": 3,
+     "note": "potong"
+    },
+    {
+     "id": "tomat",
+     "qty": 1,
+     "note": "potong"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "iris"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "iris"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 0.5
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 0.5
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 200
+    }
+   ],
+   "steps": [
+    "Lumuri tongkol dengan perasan jeruk nipis dan garam, diamkan 10 menit.",
+    "Goreng tongkol hingga matang, angkat lalu suwir kasar atau biarkan utuh.",
+    "Tumis bawang merah dan bawang putih iris dengan lengkuas dan daun salam hingga harum.",
+    "Masukkan cabai hijau, tumis hingga layu, lalu tambahkan tomat hijau dan tomat merah.",
+    "Masukkan tongkol, bumbui garam, gula, dan kaldu bubuk, beri sedikit air.",
+    "Aduk rata dan masak hingga bumbu meresap, sajikan."
+   ]
+  },
+  {
+   "id": "tongkol-balado",
+   "name": "Tongkol Balado",
+   "type": "main",
+   "timeMinutes": 35,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ikan-tongkol",
+     "qty": 500,
+     "note": "potong, goreng"
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 15,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 5,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 3
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 200
+    }
+   ],
+   "steps": [
+    "Lumuri tongkol dengan jeruk nipis dan garam, diamkan 10 menit lalu goreng hingga matang.",
+    "Haluskan kasar cabai merah, cabai rawit, bawang merah, bawang putih, dan tomat.",
+    "Tumis bumbu balado dengan daun jeruk hingga harum dan minyak keluar.",
+    "Bumbui garam dan gula, koreksi rasa.",
+    "Masukkan tongkol goreng, aduk hingga terbalut sambal, angkat dan sajikan."
+   ]
+  },
+  {
+   "id": "ayam-goreng-lengkuas",
+   "name": "Ayam Goreng Lengkuas",
+   "type": "main",
+   "timeMinutes": 75,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 1000,
+     "note": "potong 12"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 10,
+     "note": "parut"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 6,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 3
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 4
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 500
+    }
+   ],
+   "steps": [
+    "Haluskan bawang merah, bawang putih, kemiri, kunyit, dan ketumbar.",
+    "Campur bumbu halus dengan lengkuas parut, serai, daun salam, dan daun jeruk.",
+    "Ungkep ayam dengan bumbu dan sedikit air, bumbui garam dan kaldu, masak hingga air menyusut dan ayam empuk.",
+    "Pisahkan ayam dari ampas lengkuas.",
+    "Goreng ayam dalam minyak panas hingga kecokelatan, angkat.",
+    "Goreng ampas lengkuas hingga kering dan renyah, taburkan di atas ayam."
+   ]
+  },
+  {
+   "id": "krengsengan-daging",
+   "name": "Krengsengan Daging",
+   "type": "main",
+   "timeMinutes": 90,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi",
+     "qty": 500,
+     "note": "iris tipis"
+    },
+    {
+     "id": "petis",
+     "qty": 2
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 4
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-merah-besar",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 5,
+     "note": "utuh"
+    },
+    {
+     "id": "tomat",
+     "qty": 1,
+     "note": "potong"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "gula-merah",
+     "qty": 15
+    },
+    {
+     "id": "garam",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus daging hingga setengah empuk, sisihkan kaldunya.",
+    "Haluskan bawang merah, bawang putih, cabai merah, dan kemiri.",
+    "Tumis bumbu halus dengan lengkuas dan daun salam hingga harum.",
+    "Masukkan daging, aduk rata, lalu tambahkan petis, kecap manis, gula merah, dan garam.",
+    "Tuang sedikit kaldu, masukkan cabai rawit utuh, masak dengan api kecil hingga daging empuk dan kuah menyusut.",
+    "Tambahkan tomat, aduk sebentar, koreksi rasa lalu sajikan."
+   ]
+  },
+  {
+   "id": "tumis-ikan-kembung-tomat-cabe-hijau",
+   "name": "Tumis Ikan Kembung Tomat Cabe Hijau",
+   "type": "main",
+   "timeMinutes": 35,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ikan-kembung",
+     "qty": 4,
+     "note": "bersihkan, goreng"
+    },
+    {
+     "id": "cabai-hijau",
+     "qty": 10,
+     "note": "iris serong"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "potong"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 6,
+     "note": "iris"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 3,
+     "note": "iris"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 0.5
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 0.5
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 200
+    }
+   ],
+   "steps": [
+    "Lumuri ikan kembung dengan jeruk nipis dan garam, diamkan 10 menit.",
+    "Goreng ikan hingga matang dan kering, potong dua bila besar.",
+    "Tumis bawang merah dan bawang putih iris dengan lengkuas dan daun salam hingga harum.",
+    "Masukkan cabai hijau dan tomat, tumis hingga layu.",
+    "Masukkan ikan, beri sedikit air, bumbui garam, gula, dan kaldu bubuk.",
+    "Aduk perlahan hingga bumbu meresap, sajikan."
+   ]
+  },
+  {
+   "id": "opor-ayam",
+   "name": "Opor Ayam",
+   "type": "main",
+   "timeMinutes": 70,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 1000,
+     "note": "potong 12"
+    },
+    {
+     "id": "santan",
+     "qty": 700
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 10,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 6,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 5,
+     "note": "sangrai, haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1.5,
+     "note": "sangrai, haluskan"
+    },
+    {
+     "id": "merica",
+     "qty": 0.5,
+     "note": "haluskan"
+    },
+    {
+     "id": "jintan",
+     "qty": 0.5,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 3
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 4
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Haluskan bawang merah, bawang putih, kemiri, ketumbar, merica, dan jintan.",
+    "Tumis bumbu halus dengan jahe, lengkuas, serai, daun salam, dan daun jeruk hingga harum.",
+    "Masukkan ayam, aduk hingga berubah warna.",
+    "Tuang santan sedikit demi sedikit sambil diaduk agar tidak pecah.",
+    "Bumbui garam, gula, dan kaldu bubuk, masak dengan api kecil hingga ayam empuk dan kuah sedikit mengental.",
+    "Koreksi rasa dan sajikan."
+   ]
+  },
+  {
+   "id": "soto-ayam",
+   "name": "Soto Ayam",
+   "type": "main",
+   "timeMinutes": 75,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 800
+    },
+    {
+     "id": "soun",
+     "qty": 50,
+     "note": "seduh"
+    },
+    {
+     "id": "tauge",
+     "qty": 100,
+     "note": "seduh"
+    },
+    {
+     "id": "kol",
+     "qty": 0.25,
+     "note": "iris halus"
+    },
+    {
+     "id": "telur-ayam",
+     "qty": 4,
+     "note": "rebus"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 3,
+     "note": "bakar, haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "merica",
+     "qty": 0.5
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 4
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "seledri",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 2
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus ayam hingga matang, angkat, goreng sebentar lalu suwir. Sisihkan kaldunya.",
+    "Haluskan bawang merah, bawang putih, kemiri, kunyit, jahe, ketumbar, dan merica.",
+    "Tumis bumbu halus dengan lengkuas, serai, daun jeruk, dan daun salam hingga harum.",
+    "Masukkan tumisan ke kaldu ayam, bumbui garam dan kaldu bubuk, didihkan 15 menit.",
+    "Tambahkan daun bawang dan seledri, angkat.",
+    "Tata soun, tauge, kol, ayam suwir, dan telur rebus di mangkuk, siram kuah dan beri perasan jeruk nipis."
+   ]
+  },
+  {
+   "id": "semur-daging-kentang",
+   "name": "Semur Daging Kentang",
+   "type": "main",
+   "timeMinutes": 110,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi",
+     "qty": 500,
+     "note": "potong"
+    },
+    {
+     "id": "kentang",
+     "qty": 400,
+     "note": "potong besar"
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 6
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "merica",
+     "qty": 0.5,
+     "note": "haluskan"
+    },
+    {
+     "id": "pala",
+     "qty": 0.25
+    },
+    {
+     "id": "kayu-manis",
+     "qty": 1
+    },
+    {
+     "id": "cengkeh",
+     "qty": 3
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "lengkuas",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "tomat",
+     "qty": 1,
+     "note": "potong"
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-merah",
+     "qty": 10
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus daging hingga setengah empuk, sisihkan kaldunya.",
+    "Haluskan bawang merah, bawang putih, kemiri, ketumbar, dan merica.",
+    "Tumis bumbu halus dengan kayu manis, cengkeh, daun salam, dan lengkuas hingga harum.",
+    "Masukkan daging dan kaldu secukupnya, tambahkan kecap manis, pala, gula merah, dan garam.",
+    "Masukkan kentang, masak dengan api kecil hingga daging dan kentang empuk serta kuah mengental.",
+    "Tambahkan tomat, aduk sebentar, lalu sajikan."
+   ]
+  },
+  {
+   "id": "sop-ayam-klaten",
+   "name": "Sop Ayam Klaten",
+   "type": "main",
+   "timeMinutes": 60,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 800,
+     "note": "potong kecil"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 8,
+     "note": "geprek"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 5,
+     "note": "iris, goreng"
+    },
+    {
+     "id": "jahe",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "merica",
+     "qty": 1
+    },
+    {
+     "id": "pala",
+     "qty": 0.25
+    },
+    {
+     "id": "cengkeh",
+     "qty": 2
+    },
+    {
+     "id": "kayu-manis",
+     "qty": 1
+    },
+    {
+     "id": "wortel",
+     "qty": 2,
+     "note": "potong"
+    },
+    {
+     "id": "kentang",
+     "qty": 200,
+     "note": "potong dadu"
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 3,
+     "note": "iris"
+    },
+    {
+     "id": "seledri",
+     "qty": 3,
+     "note": "iris"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 2
+    },
+    {
+     "id": "garam",
+     "qty": 2.5
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": null,
+     "note": "untuk sambal"
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus ayam hingga mendidih, buang busanya, lanjutkan merebus dengan api kecil.",
+    "Tumis bawang putih geprek hingga kekuningan dan harum, masukkan ke rebusan bersama minyaknya.",
+    "Tambahkan jahe, merica, pala, cengkeh, dan kayu manis; masak hingga ayam empuk dan kuah bening harum.",
+    "Masukkan wortel dan kentang, masak hingga empuk.",
+    "Bumbui garam dan kaldu bubuk, tambahkan daun bawang dan seledri.",
+    "Sajikan dengan taburan bawang merah goreng, perasan jeruk nipis, dan sambal rawit rebus."
+   ]
+  },
+  {
+   "id": "ayam-goreng-ketumbar",
+   "name": "Ayam Goreng Ketumbar",
+   "type": "main",
+   "timeMinutes": 60,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 1000,
+     "note": "potong 12"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 2,
+     "note": "sangrai, haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "lengkuas",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 500
+    }
+   ],
+   "steps": [
+    "Sangrai ketumbar hingga harum, lalu haluskan bersama bawang putih, bawang merah, kunyit, dan kemiri.",
+    "Lumuri ayam dengan bumbu halus, garam, dan kaldu bubuk.",
+    "Ungkep ayam dengan daun salam, lengkuas, dan sedikit air hingga air menyusut dan ayam empuk.",
+    "Panaskan minyak, goreng ayam hingga kuning kecokelatan dan kering.",
+    "Angkat, tiriskan, dan sajikan."
+   ]
+  },
+  {
+   "id": "empal-goreng",
+   "name": "Empal Goreng",
+   "type": "main",
+   "timeMinutes": 120,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi",
+     "qty": 500,
+     "note": "potong searah serat, tebal 1 cm"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1.5,
+     "note": "sangrai, haluskan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 4,
+     "note": "parut"
+    },
+    {
+     "id": "asam-jawa",
+     "qty": 1
+    },
+    {
+     "id": "gula-merah",
+     "qty": 50,
+     "note": "sisir"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 3
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 300
+    }
+   ],
+   "steps": [
+    "Rebus daging hingga empuk (sekitar 60 menit), sisakan sedikit kaldu.",
+    "Haluskan bawang merah, bawang putih, dan ketumbar sangrai.",
+    "Masukkan bumbu halus, lengkuas parut, asam jawa, gula merah, daun salam, dan garam ke dalam rebusan daging.",
+    "Masak hingga kuah habis dan bumbu meresap, angkat dan dinginkan.",
+    "Pukul-pukul daging dengan ulekan agar seratnya terbuka.",
+    "Goreng daging dalam minyak panas sebentar hingga kecokelatan, angkat dan sajikan."
+   ]
+  },
+  {
+   "id": "asem-asem-iga-sapi",
+   "name": "Asem Asem Iga Sapi",
+   "type": "main",
+   "timeMinutes": 120,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "iga-sapi",
+     "qty": 700,
+     "note": "potong"
+    },
+    {
+     "id": "belimbing-wuluh",
+     "qty": 6,
+     "note": "belah dua"
+    },
+    {
+     "id": "tomat-hijau",
+     "qty": 2,
+     "note": "potong"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "potong"
+    },
+    {
+     "id": "cabai-hijau",
+     "qty": 4,
+     "note": "iris serong"
+    },
+    {
+     "id": "cabai-merah-besar",
+     "qty": 3,
+     "note": "iris serong"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "iris"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "iris"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 3
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 3
+    },
+    {
+     "id": "gula-merah",
+     "qty": 15
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus iga, buang air rebusan pertama, lalu rebus kembali dengan air baru hingga empuk (sekitar 90 menit).",
+    "Tumis bawang merah dan bawang putih iris dengan lengkuas dan daun salam hingga harum.",
+    "Masukkan tumisan ke rebusan iga.",
+    "Tambahkan belimbing wuluh, cabai hijau, cabai merah, kecap manis, gula merah, garam, dan kaldu bubuk.",
+    "Masak 10 menit, lalu masukkan tomat hijau dan tomat merah.",
+    "Masak sebentar hingga tomat layu, koreksi rasa asam-manis-gurih, sajikan."
+   ]
+  },
+  {
+   "id": "telur-puyuh-udang-balado",
+   "name": "Telur Puyuh Udang Balado",
+   "type": "main",
+   "timeMinutes": 45,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "telur-puyuh",
+     "qty": 20,
+     "note": "rebus, kupas"
+    },
+    {
+     "id": "udang",
+     "qty": 300,
+     "note": "kupas"
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 15,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 5,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 3
+    },
+    {
+     "id": "serai",
+     "qty": 1,
+     "note": "memarkan"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 100
+    }
+   ],
+   "steps": [
+    "Rebus telur puyuh hingga matang, kupas, lalu goreng sebentar hingga kulitnya agak kering.",
+    "Lumuri udang dengan perasan jeruk nipis dan sedikit garam, goreng sebentar hingga berubah warna.",
+    "Haluskan kasar cabai merah, cabai rawit, bawang merah, bawang putih, dan tomat.",
+    "Tumis bumbu dengan daun jeruk dan serai hingga harum dan matang.",
+    "Bumbui garam dan gula, masukkan telur puyuh dan udang.",
+    "Aduk hingga terbalut rata dan udang matang, sajikan."
+   ]
+  },
+  {
+   "id": "beef-yakiniku",
+   "name": "Beef Yakiniku",
+   "type": "main",
+   "timeMinutes": 30,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi-slice",
+     "qty": 500
+    },
+    {
+     "id": "bawang-bombay",
+     "qty": 1,
+     "note": "iris"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 3,
+     "note": "cincang"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "parut"
+    },
+    {
+     "id": "kecap-asin",
+     "qty": 3
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 2
+    },
+    {
+     "id": "mirin",
+     "qty": 2
+    },
+    {
+     "id": "saus-tiram",
+     "qty": 1
+    },
+    {
+     "id": "madu",
+     "qty": 1
+    },
+    {
+     "id": "minyak-wijen",
+     "qty": 1
+    },
+    {
+     "id": "merica",
+     "qty": 0.5
+    },
+    {
+     "id": "wijen",
+     "qty": 1,
+     "note": "sangrai"
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 20
+    }
+   ],
+   "steps": [
+    "Campur kecap asin, kecap manis, mirin, saus tiram, madu, minyak wijen, jahe, dan merica menjadi saus.",
+    "Marinasi daging slice dengan separuh saus selama 15 menit.",
+    "Tumis bawang putih dan bawang bombay hingga harum dan layu.",
+    "Masukkan daging, masak dengan api besar sebentar hingga berubah warna.",
+    "Tuang sisa saus, aduk hingga mengental dan meresap.",
+    "Taburi daun bawang dan wijen sangrai, sajikan."
+   ]
+  },
+  {
+   "id": "beef-enoki",
+   "name": "Beef Enoki",
+   "type": "main",
+   "timeMinutes": 30,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi-slice",
+     "qty": 400
+    },
+    {
+     "id": "jamur-enoki",
+     "qty": 2,
+     "note": "potong akar"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 3,
+     "note": "cincang"
+    },
+    {
+     "id": "bawang-bombay",
+     "qty": 0.5,
+     "note": "iris"
+    },
+    {
+     "id": "kecap-asin",
+     "qty": 2
+    },
+    {
+     "id": "saus-tiram",
+     "qty": 2
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 1
+    },
+    {
+     "id": "madu",
+     "qty": 1
+    },
+    {
+     "id": "merica",
+     "qty": 0.5
+    },
+    {
+     "id": "tepung-maizena",
+     "qty": 1,
+     "note": "larutkan"
+    },
+    {
+     "id": "wijen",
+     "qty": 1
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 1,
+     "note": "iris"
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Gulung segenggam kecil jamur enoki dengan selembar daging slice, ulangi hingga habis.",
+    "Panggang atau goreng gulungan dengan sedikit minyak hingga daging matang, sisihkan.",
+    "Tumis bawang putih dan bawang bombay hingga harum.",
+    "Tambahkan kecap asin, saus tiram, kecap manis, madu, merica, dan sedikit air, didihkan.",
+    "Kentalkan dengan larutan maizena, masukkan gulungan daging, aduk perlahan hingga terbalut saus.",
+    "Taburi wijen dan daun bawang, sajikan."
+   ]
+  },
+  {
+   "id": "ayam-kecap",
+   "name": "Ayam Kecap",
+   "type": "main",
+   "timeMinutes": 50,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 1000,
+     "note": "potong 12"
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 6
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 6,
+     "note": "iris"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "cincang"
+    },
+    {
+     "id": "bawang-bombay",
+     "qty": 1,
+     "note": "iris"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "tomat",
+     "qty": 1,
+     "note": "potong"
+    },
+    {
+     "id": "saus-tiram",
+     "qty": 1
+    },
+    {
+     "id": "merica",
+     "qty": 0.5
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 300
+    }
+   ],
+   "steps": [
+    "Lumuri ayam dengan jeruk nipis dan garam, diamkan 10 menit lalu goreng setengah matang.",
+    "Tumis bawang merah, bawang putih, bawang bombay, dan jahe hingga harum.",
+    "Masukkan ayam goreng, tambahkan kecap manis, saus tiram, merica, dan sedikit air.",
+    "Masak dengan api kecil hingga kuah menyusut dan bumbu meresap.",
+    "Tambahkan tomat dan daun bawang, aduk sebentar lalu sajikan."
+   ]
+  },
+  {
+   "id": "ayam-kecap-rica",
+   "name": "Ayam Kecap Rica",
+   "type": "main",
+   "timeMinutes": 55,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 1000,
+     "note": "potong 12"
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 5
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 10,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 15,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 5
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "kemangi",
+     "qty": 1,
+     "note": "petik daunnya"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 0.5
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 300
+    }
+   ],
+   "steps": [
+    "Lumuri ayam dengan jeruk nipis dan garam, lalu goreng setengah matang.",
+    "Haluskan cabai merah, cabai rawit, bawang merah, bawang putih, jahe, dan kemiri.",
+    "Tumis bumbu halus dengan serai dan daun jeruk hingga harum dan matang.",
+    "Masukkan ayam, kecap manis, garam, gula, dan sedikit air.",
+    "Masak hingga kuah menyusut dan bumbu meresap.",
+    "Masukkan daun bawang dan kemangi, aduk sebentar hingga layu, sajikan."
+   ]
+  },
+  {
+   "id": "udang-goreng-crispy",
+   "name": "Udang Goreng Crispy",
+   "type": "main",
+   "timeMinutes": 30,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "udang",
+     "qty": 500,
+     "note": "kupas sisakan ekor"
+    },
+    {
+     "id": "tepung-bumbu",
+     "qty": 150
+    },
+    {
+     "id": "tepung-maizena",
+     "qty": 2
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1
+    },
+    {
+     "id": "merica",
+     "qty": 0.5
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 500
+    },
+    {
+     "id": "saus-sambal",
+     "qty": null,
+     "note": "cocolan"
+    }
+   ],
+   "steps": [
+    "Bersihkan udang, buang kotoran di punggungnya, lumuri jeruk nipis lalu bilas.",
+    "Marinasi udang dengan bawang putih halus, garam, dan merica selama 10 menit.",
+    "Campur tepung bumbu dengan maizena; ambil sebagian dan beri sedikit air untuk adonan basah.",
+    "Celupkan udang ke adonan basah, lalu gulingkan di tepung kering sambil dicubit-cubit.",
+    "Goreng dalam minyak panas dengan api sedang hingga kuning keemasan dan renyah.",
+    "Tiriskan dan sajikan dengan saus sambal."
+   ]
+  },
+  {
+   "id": "rendang-daging",
+   "name": "Rendang Daging",
+   "type": "main",
+   "timeMinutes": 210,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "daging-sapi",
+     "qty": 1000,
+     "note": "potong besar"
+    },
+    {
+     "id": "santan",
+     "qty": 1000
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 20,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-merah-besar",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 12,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "serai",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 6
+    },
+    {
+     "id": "daun-kunyit",
+     "qty": 2,
+     "note": "simpulkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 3
+    },
+    {
+     "id": "asam-jawa",
+     "qty": 1
+    },
+    {
+     "id": "kayu-manis",
+     "qty": 1
+    },
+    {
+     "id": "cengkeh",
+     "qty": 3
+    },
+    {
+     "id": "bunga-lawang",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 2.5
+    },
+    {
+     "id": "gula-merah",
+     "qty": 20
+    }
+   ],
+   "steps": [
+    "Haluskan cabai, bawang merah, bawang putih, jahe, kunyit, lengkuas, kemiri, dan ketumbar.",
+    "Didihkan santan bersama bumbu halus, serai, daun jeruk, daun kunyit, daun salam, kayu manis, cengkeh, dan bunga lawang sambil terus diaduk.",
+    "Masukkan daging, masak dengan api sedang sambil sesekali diaduk.",
+    "Tambahkan asam jawa, gula merah, dan garam setelah santan mulai menyusut.",
+    "Kecilkan api, masak terus sambil diaduk hingga santan mengering dan berminyak (sekitar 3 jam).",
+    "Aduk hingga bumbu kecokelatan gelap dan melekat pada daging, angkat."
+   ]
+  },
+  {
+   "id": "sop-iga-sapi",
+   "name": "Sop Iga Sapi",
+   "type": "main",
+   "timeMinutes": 130,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "iga-sapi",
+     "qty": 800,
+     "note": "potong"
+    },
+    {
+     "id": "wortel",
+     "qty": 2,
+     "note": "potong"
+    },
+    {
+     "id": "kentang",
+     "qty": 300,
+     "note": "potong besar"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "potong"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 6,
+     "note": "geprek"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 6,
+     "note": "iris"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "pala",
+     "qty": 0.25
+    },
+    {
+     "id": "merica",
+     "qty": 1
+    },
+    {
+     "id": "cengkeh",
+     "qty": 3
+    },
+    {
+     "id": "kayu-manis",
+     "qty": 1
+    },
+    {
+     "id": "daun-bawang",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "seledri",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "garam",
+     "qty": 2.5
+    },
+    {
+     "id": "kaldu-bubuk",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Rebus iga, buang air rebusan pertama, lalu rebus kembali dengan air baru, jahe, cengkeh, dan kayu manis hingga empuk (sekitar 90 menit).",
+    "Tumis bawang merah dan bawang putih hingga harum dan kekuningan.",
+    "Masukkan tumisan ke rebusan iga bersama pala dan merica.",
+    "Masukkan wortel dan kentang, masak hingga empuk.",
+    "Bumbui garam dan kaldu bubuk, masukkan tomat, daun bawang, dan seledri.",
+    "Masak sebentar, koreksi rasa, dan sajikan."
+   ]
+  },
+  {
+   "id": "ikan-nila-bakar-kecap",
+   "name": "Ikan Nila Bakar Kecap",
+   "type": "main",
+   "timeMinutes": 50,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ikan-nila",
+     "qty": 2,
+     "note": "besar, kerat-kerat"
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 6
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 6,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 0.5,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "mentega",
+     "qty": 30
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Lumuri ikan dengan perasan jeruk nipis dan garam, diamkan 10 menit.",
+    "Haluskan bawang merah, bawang putih, kemiri, kunyit, jahe, ketumbar, dan cabai merah.",
+    "Tumis bumbu halus hingga harum, lalu tambahkan kecap manis dan mentega, aduk rata.",
+    "Lumuri ikan dengan bumbu, diamkan 15 menit agar meresap.",
+    "Bakar ikan di atas bara atau teflon sambil diolesi sisa bumbu dan dibolak-balik hingga matang.",
+    "Angkat dan sajikan."
+   ]
+  },
+  {
+   "id": "udang-balado",
+   "name": "Udang Balado",
+   "type": "main",
+   "timeMinutes": 35,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "udang",
+     "qty": 500,
+     "note": "kupas sisakan ekor"
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 15,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 5,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 3
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 80
+    }
+   ],
+   "steps": [
+    "Lumuri udang dengan perasan jeruk nipis dan sedikit garam, diamkan 10 menit.",
+    "Goreng udang sebentar hingga berubah warna, angkat.",
+    "Haluskan kasar cabai merah, cabai rawit, bawang merah, bawang putih, dan tomat.",
+    "Tumis bumbu dengan daun jeruk hingga harum dan matang.",
+    "Bumbui garam dan gula, masukkan udang, aduk hingga terbalut rata dan matang, sajikan."
+   ]
+  },
+  {
+   "id": "pepes-ikan-kembung",
+   "name": "Pepes Ikan Kembung",
+   "type": "main",
+   "timeMinutes": 75,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ikan-kembung",
+     "qty": 4,
+     "note": "bersihkan"
+    },
+    {
+     "id": "daun-pisang",
+     "qty": 8
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 8,
+     "note": "utuh"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "iris"
+    },
+    {
+     "id": "kemangi",
+     "qty": 1,
+     "note": "petik daunnya"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "potong-potong"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 4
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 0.5
+    }
+   ],
+   "steps": [
+    "Lumuri ikan dengan perasan jeruk nipis dan garam, diamkan 10 menit.",
+    "Haluskan bawang merah, bawang putih, kemiri, kunyit, jahe, dan cabai merah; bumbui garam dan gula.",
+    "Lumuri ikan dengan bumbu halus hingga rata, termasuk bagian perut.",
+    "Letakkan ikan di atas daun pisang, beri daun salam, serai, tomat, cabai rawit, dan kemangi, lalu bungkus dan semat lidi.",
+    "Kukus pepes selama 45 menit hingga matang.",
+    "Panggang sebentar di teflon agar harum (opsional), lalu sajikan."
+   ]
+  },
+  {
+   "id": "ayam-bakar-taliwang",
+   "name": "Ayam Bakar Taliwang",
+   "type": "main",
+   "timeMinutes": 75,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ayam-potong",
+     "qty": 1000,
+     "note": "potong 4, belah tengah"
+    },
+    {
+     "id": "cabai-merah-besar",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-kering",
+     "qty": 6,
+     "note": "rendam, haluskan"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 10,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 10,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 6,
+     "note": "haluskan"
+    },
+    {
+     "id": "kencur",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 4,
+     "note": "sangrai, haluskan"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "terasi",
+     "qty": 1,
+     "note": "bakar"
+    },
+    {
+     "id": "gula-merah",
+     "qty": 20
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 60
+    }
+   ],
+   "steps": [
+    "Lumuri ayam dengan perasan jeruk nipis dan garam, diamkan 15 menit.",
+    "Haluskan cabai merah, cabai kering, cabai rawit, bawang merah, bawang putih, kencur, kemiri, tomat, dan terasi.",
+    "Tumis bumbu halus hingga harum dan matang, tambahkan gula merah dan garam.",
+    "Masukkan ayam dan sedikit air, ungkep hingga ayam empuk dan bumbu mengental.",
+    "Bakar ayam di atas bara atau teflon sambil diolesi sisa bumbu hingga kecokelatan.",
+    "Angkat dan sajikan."
+   ]
+  },
+  {
+   "id": "gulai-ikan-tongkol",
+   "name": "Gulai Ikan Tongkol",
+   "type": "main",
+   "timeMinutes": 50,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "ikan-tongkol",
+     "qty": 600,
+     "note": "potong"
+    },
+    {
+     "id": "santan",
+     "qty": 600
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 10,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 4,
+     "note": "haluskan"
+    },
+    {
+     "id": "ketumbar",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 3,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-kunyit",
+     "qty": 1,
+     "note": "simpulkan"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 4
+    },
+    {
+     "id": "asam-jawa",
+     "qty": 1
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 6,
+     "note": "utuh"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 2
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Lumuri tongkol dengan perasan jeruk nipis dan garam, diamkan 10 menit.",
+    "Haluskan cabai merah, bawang merah, bawang putih, kunyit, jahe, kemiri, dan ketumbar.",
+    "Tumis bumbu halus dengan lengkuas, serai, daun kunyit, dan daun jeruk hingga harum.",
+    "Tuang santan sambil diaduk hingga mendidih, tambahkan asam jawa dan garam.",
+    "Masukkan ikan tongkol dan cabai rawit, masak dengan api kecil tanpa banyak diaduk agar ikan tidak hancur.",
+    "Masak hingga kuah sedikit mengental, koreksi rasa, sajikan."
+   ]
+  },
+  {
+   "id": "telur-balado",
+   "name": "Telur Balado",
+   "type": "main",
+   "timeMinutes": 35,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "telur-ayam",
+     "qty": 8,
+     "note": "rebus, kupas"
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 15,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 5,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 4,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "tomat",
+     "qty": 2,
+     "note": "haluskan kasar"
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 3
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 1
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 200
+    }
+   ],
+   "steps": [
+    "Rebus telur hingga matang, kupas.",
+    "Goreng telur rebus hingga kulitnya kecokelatan dan berkerut, angkat.",
+    "Haluskan kasar cabai merah, cabai rawit, bawang merah, bawang putih, dan tomat.",
+    "Tumis bumbu dengan daun jeruk hingga harum dan matang, bumbui garam dan gula.",
+    "Masukkan telur, aduk hingga terbalut sambal balado, sajikan."
+   ]
+  },
+  {
+   "id": "cumi-hitam",
+   "name": "Cumi Hitam",
+   "type": "main",
+   "timeMinutes": 40,
+   "servings": 4,
+   "ingredients": [
+    {
+     "id": "cumi",
+     "qty": 500,
+     "note": "bersihkan, sisakan kantong tinta"
+    },
+    {
+     "id": "bawang-merah",
+     "qty": 8,
+     "note": "haluskan"
+    },
+    {
+     "id": "bawang-putih",
+     "qty": 5,
+     "note": "haluskan"
+    },
+    {
+     "id": "kemiri",
+     "qty": 3,
+     "note": "haluskan"
+    },
+    {
+     "id": "cabai-merah-keriting",
+     "qty": 6,
+     "note": "haluskan"
+    },
+    {
+     "id": "kunyit",
+     "qty": 1,
+     "note": "haluskan"
+    },
+    {
+     "id": "jahe",
+     "qty": 2,
+     "note": "haluskan"
+    },
+    {
+     "id": "lengkuas",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "serai",
+     "qty": 2,
+     "note": "memarkan"
+    },
+    {
+     "id": "daun-salam",
+     "qty": 2
+    },
+    {
+     "id": "daun-jeruk",
+     "qty": 3
+    },
+    {
+     "id": "cabai-rawit",
+     "qty": 8,
+     "note": "utuh"
+    },
+    {
+     "id": "tomat",
+     "qty": 1,
+     "note": "potong"
+    },
+    {
+     "id": "jeruk-nipis",
+     "qty": 1
+    },
+    {
+     "id": "kecap-manis",
+     "qty": 1
+    },
+    {
+     "id": "garam",
+     "qty": 1.5
+    },
+    {
+     "id": "gula-pasir",
+     "qty": 0.5
+    },
+    {
+     "id": "minyak-goreng",
+     "qty": 30
+    }
+   ],
+   "steps": [
+    "Bersihkan cumi tanpa membuang kantong tintanya, potong cincin, lumuri jeruk nipis lalu bilas.",
+    "Haluskan bawang merah, bawang putih, kemiri, cabai merah, kunyit, dan jahe.",
+    "Tumis bumbu halus dengan lengkuas, serai, daun salam, dan daun jeruk hingga harum.",
+    "Masukkan cumi beserta tintanya, aduk hingga berubah warna dan kuah menghitam.",
+    "Tambahkan cabai rawit, tomat, kecap manis, garam, gula, dan sedikit air.",
+    "Masak sebentar saja (5-7 menit) agar cumi tidak alot, koreksi rasa, sajikan."
+   ]
+  }
+ ]
+}
