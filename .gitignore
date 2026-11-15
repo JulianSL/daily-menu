@@ -7,3 +7,4 @@ Thumbs.db
 xcuserdata/
 *.xcuserstate
 graft/
+.ignore
