@@ -15,13 +15,44 @@
   const MAIN = {}; MAINS.forEach((m) => { MAIN[m.id] = m; });
   const SIDE = {}; SIDES.forEach((s) => { SIDE[s.id] = s; });
   const KID = {}; KIDS.forEach((k) => { KID[k.id] = k; });
-  const nameOf = (id) => (MAIN[id] || SIDE[id] || KID[id] || R[id] || ideaById(id) || { name: id }).name;
-  // "Untuk nanti" ideas live in the user's state (S.ideas) and sync with it.
+  const editOf = (id) => (id && typeof S !== 'undefined' && S.menuEdits && S.menuEdits[id]) || null;
+  const nameOf = (id) => (editOf(id) && editOf(id).name) || (MAIN[id] || SIDE[id] || KID[id] || R[id] || ideaById(id) || { name: id }).name;
+  // Menus the user made (catalog additions and "Untuk nanti" ideas) live in S.ideas and sync with it.
   function ideaById(id) {
     if (!id || typeof S === 'undefined') return null;
-    return (S.ideas || []).find((x) => x.id === id) || (S.customMenus || []).find((x) => x.id === id) || null;
+    return (S.ideas || []).find((x) => x.id === id) || null;
   }
-  const isIdea = (id) => !!(id && typeof S !== 'undefined' && (S.ideas || []).some((x) => x.id === id));
+  /** ★ "Untuk nanti": user menus flagged `later`. */
+  const isIdea = (id) => { const x = ideaById(id); return !!(x && x.later !== false); };
+
+  // ---------- Catalog: every menu with its effective name / type / audience ----------
+  // type: main | side · audience: adult | kid. Built-in menus can be edited (S.menuEdits) or hidden from random picks.
+  function menuInfo(id) {
+    let base = null;
+    if (MAIN[id]) base = { id, name: MAIN[id].name, type: 'main', audience: 'adult', source: MAIN[id].source, builtin: true };
+    else if (SIDE[id]) base = { id, name: SIDE[id].name, type: 'side', audience: 'adult', source: 'user', builtin: true };
+    else if (KID[id]) base = { id, name: KID[id].name, type: 'main', audience: 'kid', source: 'kid', builtin: true };
+    else {
+      const x = ideaById(id);
+      if (!x) return null;
+      return { id, name: x.name, type: x.type === 'side' ? 'side' : 'main', audience: x.audience === 'kid' ? 'kid' : 'adult', source: 'mine', builtin: false, later: x.later !== false, hidden: !!x.hidden, hasRecipe: (x.ingredients || []).length > 0 || (x.steps || []).length > 0 };
+    }
+    const e = editOf(id) || {};
+    return Object.assign(base, {
+      name: e.name || base.name, type: e.type || base.type, audience: e.audience || base.audience,
+      hidden: !!e.hidden, edited: !!(e.name || e.ingredients || e.steps || e.type || e.audience), later: false, hasRecipe: true
+    });
+  }
+  function allMenus() {
+    const ids = MAINS.map((m) => m.id).concat(SIDES.map((s) => s.id), KIDS.map((k) => k.id), (typeof S !== 'undefined' && S.ideas || []).map((x) => x.id));
+    return ids.map(menuInfo).filter(Boolean);
+  }
+  // Pools used when menus are picked at random (hidden and ★-later menus excluded; ★ ones join via "Sertakan menu untuk nanti").
+  const adultMains = () => allMenus().filter((m) => m.type === 'main' && m.audience === 'adult' && !m.hidden && !m.later);
+  const adultSides = () => allMenus().filter((m) => m.type === 'side' && m.audience === 'adult' && !m.hidden && !m.later);
+  const kidPool = () => allMenus().filter((m) => m.audience === 'kid' && !m.hidden);
+  const menuExists = (id) => !!menuInfo(id);
+  const laterCount = () => (typeof S !== 'undefined' && S.ideas || []).filter((x) => x.later !== false).length;
 
   const DAY_NAMES = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const DAY_SHORT = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'];
@@ -42,7 +73,7 @@
       // mainId null = empty day. kidId: null = same as adults, '' = no kids menu, id = own kids menu.
       plans: {},
       shoppingByWeek: {},      // { 'YYYY-MM-DD': { shoppingKey: true } } bought / already in stock
-      customMenus: [],         // names typed in "Pilih sendiri" that are not in the catalog: [{id, name}]
+      menuEdits: {},           // built-in menu id -> {name?, type?, audience?, ingredients?, steps?, hidden?}
       favorites: D.menus.favorites.filter((id) => MAIN[id]).map((id) => id + '|' + MAIN[id].defaultSideId),
       kidOverrides: {},        // mainId -> bool (user's own "ramah anak" marks)
       preferFav: true,
@@ -53,6 +84,14 @@
   }
   /** Older versions kept one `plan` + `shopping`; move them into the per-week maps. */
   function migrate(s) {
+    // User menus: older ideas were all "untuk nanti"; quick names from "Pilih sendiri" become plain catalog menus.
+    s.ideas = (s.ideas || []).map((x) => Object.assign({ later: true, audience: 'adult' }, x));
+    (s.customMenus || []).forEach((c) => {
+      if (s.ideas.some((x) => x.id === c.id)) return;
+      s.ideas.push({ id: c.id, name: c.name, type: c.kind === 'side' ? 'side' : 'main', audience: c.kind === 'kid' ? 'kid' : 'adult', later: false, source: 'custom', ingredients: [], steps: [], createdAt: Date.now() });
+    });
+    delete s.customMenus;
+    s.menuEdits = s.menuEdits || {};
     s.plans = s.plans || {};
     s.shoppingByWeek = s.shoppingByWeek || {};
     if (s.plan && s.plan.weekStart) {
@@ -160,7 +199,10 @@
   }
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const isKidOk = (mainId) => {
+    if (!mainId) return false;
     if (mainId in S.kidOverrides) return S.kidOverrides[mainId];
+    const info = menuInfo(mainId);
+    if (info && info.audience === 'kid') return true;
     if (MAIN[mainId]) return !!MAIN[mainId].kidFriendly;
     const idea = ideaById(mainId);
     return !!(idea && idea.kidFriendly);
@@ -168,7 +210,7 @@
   const mainSource = (id) => (MAIN[id] ? MAIN[id].source : isIdea(id) ? 'idea' : 'user');
   const favKey = (mainId, sideId) => mainId + '|' + sideId;
   const isFav = (mainId, sideId) => S.favorites.includes(favKey(mainId, sideId));
-  const favMainIds = () => S.favorites.map((k) => k.split('|')[0]).filter((id) => MAIN[id]);
+  const favMainIds = () => S.favorites.map((k) => k.split('|')[0]).filter(menuExists);
 
   function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function parseIso(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
@@ -274,29 +316,33 @@
 
   // ---------- Menu generation ----------
   function uniqueSide(preferred, used) {
-    if (!used.includes(preferred)) return preferred;
-    const free = SIDES.map((s) => s.id).filter((id) => !used.includes(id));
-    return free.length ? pick(free) : preferred;
+    if (preferred && !used.includes(preferred) && menuExists(preferred)) return preferred;
+    const all = adultSides().map((s) => s.id);
+    const free = all.filter((id) => !used.includes(id));
+    return free.length ? pick(free) : (preferred || pick(all));
   }
   function freshKid(used) {
-    const free = KIDS.map((k) => k.id).filter((id) => !used.includes(id));
-    return pick(free.length ? free : KIDS.map((k) => k.id));
+    const all = kidPool().map((k) => k.id);
+    const free = all.filter((id) => !used.includes(id));
+    return pick(free.length ? free : all);
   }
   function generateDays() {
     // Up to 2 "untuk nanti" ideas join the week (main ideas as mains, side ideas as sides).
-    const ideas = S.includeIdeas ? shuffle(S.ideas || []).slice(0, 2) : [];
+    const later = (S.ideas || []).filter((x) => x.later !== false && x.audience !== 'kid' && !x.hidden);
+    const ideas = S.includeIdeas ? shuffle(later).slice(0, 2) : [];
     const ideaMains = ideas.filter((x) => x.type !== 'side').map((x) => x.id);
     const ideaSides = ideas.filter((x) => x.type === 'side').map((x) => x.id);
+    const mains = adultMains();
     const picks = [];
     const add = (id) => { if (!picks.includes(id)) picks.push(id); };
     ideaMains.forEach(add);
-    if (S.preferFav) shuffle(favMainIds()).slice(0, 3).forEach((id) => { if (picks.length < 7) add(id); });
-    shuffle(MAINS.filter((m) => m.source === 'user').map((m) => m.id)).forEach((id) => { if (picks.length < 6) add(id); });
-    shuffle(MAINS.map((m) => m.id)).forEach((id) => { if (picks.length < 7) add(id); });
+    if (S.preferFav) shuffle(favMainIds().filter((id) => mains.some((m) => m.id === id))).slice(0, 3).forEach((id) => { if (picks.length < 7) add(id); });
+    shuffle(mains.filter((m) => m.source !== 'online').map((m) => m.id)).forEach((id) => { if (picks.length < 6) add(id); });
+    shuffle(mains.map((m) => m.id)).forEach((id) => { if (picks.length < 7) add(id); });
     const usedSides = [];
-    const kidMenus = shuffle(KIDS.map((k) => k.id));
+    const kidMenus = shuffle(kidPool().map((k) => k.id));
     const days = shuffle(picks).map((id, i) => {
-      const preferred = MAIN[id] ? MAIN[id].defaultSideId : pick(SIDES).id;
+      const preferred = MAIN[id] ? MAIN[id].defaultSideId : null;
       const sideId = uniqueSide(preferred, usedSides);
       usedSides.push(sideId);
       return { mainId: id, sideId, kidMenuId: kidMenus[i % kidMenus.length] };
@@ -307,11 +353,13 @@
   function rerollDay(days, i) {
     const used = days.map((d) => d.mainId);
     const fromUser = Math.random() < 0.75;
-    let pool = MAINS.filter((m) => !used.includes(m.id) && (fromUser ? m.source === 'user' : m.source === 'online'));
-    if (!pool.length) pool = MAINS.filter((m) => !used.includes(m.id));
+    const mains = adultMains();
+    let pool = mains.filter((m) => !used.includes(m.id) && (fromUser ? m.source !== 'online' : m.source === 'online'));
+    if (!pool.length) pool = mains.filter((m) => !used.includes(m.id));
     const m = pick(pool);
+    if (!m) return;
     const usedSides = days.filter((_, k) => k !== i).map((d) => d.sideId);
-    days[i] = Object.assign({}, days[i], { mainId: m.id, sideId: uniqueSide(m.defaultSideId, usedSides) });
+    days[i] = Object.assign({}, days[i], { mainId: m.id, sideId: uniqueSide(MAIN[m.id] ? MAIN[m.id].defaultSideId : null, usedSides) });
   }
   function rerollKid(days, i) {
     const used = days.filter((d, k) => k !== i && !isKidOk(d.mainId)).map((d) => d.kidMenuId);
@@ -321,8 +369,9 @@
   function rerollSide(days, i) {
     // Swap only the side dish: never the current one, never one already used this week.
     const used = days.map((d) => d.sideId);
-    const pool = SIDES.map((s) => s.id).filter((id) => !used.includes(id));
-    const fallback = SIDES.map((s) => s.id).filter((id) => id !== days[i].sideId);
+    const all = adultSides().map((s) => s.id);
+    const pool = all.filter((id) => !used.includes(id));
+    const fallback = all.filter((id) => id !== days[i].sideId);
     const next = pick(pool.length ? pool : fallback);
     if (next) days[i] = Object.assign({}, days[i], { sideId: next });
   }
@@ -337,37 +386,54 @@
 
   // ---------- Recipes (catalog or idea) as uniform rows ----------
   // row.key is the shopping-list id: a vocabulary id when known, otherwise "x:<name>".
+  function ideaStyleRows(list) {
+    return (list || []).map((i) => {
+      const v = i.vocabId && ING[i.vocabId];
+      return {
+        key: v ? v.id : 'x:' + i.name.toLowerCase(),
+        name: v ? v.name : i.name,
+        label: i.name,
+        category: v ? v.category : (i.category || 'misc'),
+        qty: v && typeof i.qty === 'number' ? i.qty : null,
+        unit: v ? v.unit : null,
+        qtyText: i.qtyText || 'secukupnya',
+        note: i.note,
+        pantry: v ? !!v.pantry : false
+      };
+    });
+  }
   function recipeRows(rid) {
     const r = R[rid];
+    const e = editOf(rid);
+    if (r && e && (e.ingredients || e.steps)) {
+      // A built-in recipe the user changed: their ingredients / steps replace the original.
+      const base = recipeRows.original(rid);
+      return Object.assign({}, base, {
+        name: nameOf(rid), edited: true,
+        steps: e.steps || base.steps,
+        rows: e.ingredients ? ideaStyleRows(e.ingredients) : base.rows
+      });
+    }
     if (r) {
-      return {
-        name: r.name, type: r.type, servings: r.servings, timeMinutes: r.timeMinutes, steps: r.steps,
-        rows: r.ingredients.filter((i) => ING[i.id]).map((i) => {
-          const q = typeof i.qty === 'number' ? i.qty : null;
-          return { key: i.id, name: ING[i.id].name, label: ING[i.id].name, category: ING[i.id].category, qty: q, unit: ING[i.id].unit, qtyText: fmtQty(q, ING[i.id].unit), note: i.note, pantry: !!ING[i.id].pantry };
-        })
-      };
+      const base = recipeRows.original(rid);
+      return e && e.name ? Object.assign({}, base, { name: e.name }) : base;
     }
     const x = ideaById(rid);
     if (!x) return null;
+    return { name: x.name, type: x.type, servings: null, timeMinutes: null, steps: x.steps || [], idea: x, rows: ideaStyleRows(x.ingredients) };
+  }
+  /** The bundled recipe, ignoring the user's edits. */
+  recipeRows.original = function (rid) {
+    const r = R[rid];
+    if (!r) return null;
     return {
-      name: x.name, type: x.type, servings: null, timeMinutes: null, steps: x.steps || [], idea: x,
-      rows: (x.ingredients || []).map((i) => {
-        const v = i.vocabId && ING[i.vocabId];
-        return {
-          key: v ? v.id : 'x:' + i.name.toLowerCase(),
-          name: v ? v.name : i.name,          // shopping list groups under the catalog name
-          label: i.name,                      // recipe shows the name as written
-          category: v ? v.category : (i.category || 'misc'),
-          qty: v && typeof i.qty === 'number' ? i.qty : null,
-          unit: v ? v.unit : null,
-          qtyText: i.qtyText || 'secukupnya',
-          note: i.note,
-          pantry: v ? !!v.pantry : false
-        };
+      name: r.name, type: r.type, servings: r.servings, timeMinutes: r.timeMinutes, steps: r.steps,
+      rows: r.ingredients.filter((i) => ING[i.id]).map((i) => {
+        const q = typeof i.qty === 'number' ? i.qty : null;
+        return { key: i.id, name: ING[i.id].name, label: ING[i.id].name, category: ING[i.id].category, qty: q, unit: ING[i.id].unit, qtyText: fmtQty(q, ING[i.id].unit), note: i.note, pantry: !!ING[i.id].pantry };
       })
     };
-  }
+  };
 
   // ---------- Shopping list ----------
   function buildShopping(days) {
@@ -417,7 +483,7 @@
     else if (ui.view && ui.view.type === 'fav') html = viewFavDetail();
     else if (ui.view && ui.view.type === 'reorder') html = viewReorder();
     else if (ui.view && ui.view.type === 'sync') html = viewSync();
-    else if (ui.view && ui.view.type === 'idea') html = viewIdea();
+    else if (ui.view && (ui.view.type === 'idea' || ui.view.type === 'menu')) html = viewMenu();
     else html = (ui.tab === 'home' ? viewHome() : ui.tab === 'shop' ? viewShop() : viewFav()) + tabbar();
     if (ui.sheet) html += viewSheet();
     if (ui.ideaSheet) html += viewIdeaSheet();
@@ -471,7 +537,7 @@
     return `<nav class="tabbar" aria-label="Navigasi utama">
       ${tab('home', icon('cal', 24), 'Minggu Ini')}
       ${tab('shop', icon('bag', 24), 'Belanja', left ? `<span class="count" aria-label="${left} belum dibeli">${left}</span>` : '')}
-      ${tab('fav', icon('heart', 24), 'Favorit')}
+      ${tab('fav', icon('book', 24), 'Katalog')}
     </nav>`;
   }
 
@@ -666,15 +732,28 @@
   }
 
   // Favorites tab ------------------------------------------------------
-  function viewFav() {
-    const seg = ui.favSeg || 'fav';
-    const ideas = S.ideas || [];
-    const segmented = `<div class="segmented" role="tablist" aria-label="Favorit atau untuk nanti" style="grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 20px 0">
+  // Katalog tab: every menu, plus Favorit and ★ Untuk nanti -------------------------------
+  const TYPE_LABEL = (m) => (m.type === 'side' ? 'Pendamping' : 'Menu utama');
+  const AUD_LABEL = (m) => (m.audience === 'kid' ? 'Anak' : 'Dewasa');
+
+  function catalogShell(seg, body, count) {
+    const later = laterCount();
+    return `<section class="screen" style="position:relative">
+      <header class="page-head"><div><p class="eyebrow">${count}</p><h1>Katalog</h1></div></header>
+      <div class="segmented" role="tablist" aria-label="Bagian katalog" style="grid-template-columns:repeat(3,minmax(0,1fr));margin:16px 20px 0">
+        <button type="button" role="tab" aria-selected="${seg === 'all'}" data-act="fav-seg" data-seg="all">Semua</button>
         <button type="button" role="tab" aria-selected="${seg === 'fav'}" data-act="fav-seg" data-seg="fav">Favorit <small>${S.favorites.length}</small></button>
-        <button type="button" role="tab" aria-selected="${seg === 'later'}" data-act="fav-seg" data-seg="later">${star(14)} Untuk nanti <small>${ideas.length}</small></button>
-      </div>`;
-    const fab = `<button type="button" class="fab" data-act="idea-new" aria-label="Tambah ide menu untuk nanti">${icon('plus', 26, 'stroke-width="2.4"')}</button>`;
-    if (seg === 'later') return viewLater(segmented, fab);
+        <button type="button" role="tab" aria-selected="${seg === 'later'}" data-act="fav-seg" data-seg="later">${star(13)} Nanti <small>${later}</small></button>
+      </div>
+      ${body}
+      <button type="button" class="fab" data-act="menu-new" data-later="${seg === 'later'}" aria-label="${seg === 'later' ? 'Tambah ide menu untuk nanti' : 'Tambah menu ke katalog'}">${icon('plus', 26, 'stroke-width="2.4"')}</button>
+    </section>`;
+  }
+
+  function viewFav() {
+    const seg = ui.favSeg || 'all';
+    if (seg === 'later') return viewLater();
+    if (seg === 'all') return viewCatalogAll();
     const q = ui.favQuery.trim().toLowerCase();
     const items = S.favorites.filter((k) => {
       if (!q) return true;
@@ -695,70 +774,108 @@
         </button>
       </li>`;
     }).join('');
-    return `<section class="screen" style="position:relative">
-      <header class="page-head"><div><p class="eyebrow">Menu yang kamu suka &amp; ingin dicoba</p><h1>Favorit</h1></div></header>
-      ${segmented}
-      <div style="padding:14px 20px 0;display:flex;flex-direction:column;gap:6px">
+    return catalogShell('fav', `
+      <div style="padding:14px 20px 0">
         <label for="cari" class="sr-only">Cari favorit</label>
         <div class="search">${icon('search', 18)}<input id="cari" type="search" placeholder="Cari favorit: rawon, soto…" value="${esc(ui.favQuery)}" data-act="fav-search" autocomplete="off"></div>
       </div>
       <ul class="scroll list" data-scroll="fav" style="padding:16px 16px 96px">
         ${list || `<li class="empty-cat">${q ? 'Tidak ada favorit yang cocok.' : 'Belum ada favorit. Ketuk ♥ pada menu untuk menyimpannya di sini.'}</li>`}
-      </ul>
-      ${fab}
-    </section>`;
+      </ul>`, `${S.favorites.length} set menu favorit`);
   }
 
-  function viewLater(segmented, fab) {
-    const ideas = S.ideas || [];
-    const SRC = { image: 'Dari screenshot', web: 'Dari website', manual: 'Ditulis manual' };
+  function menuBadges(m) {
+    return [
+      m.source === 'online' ? '<span class="badge-online">Online</span>' : '',
+      !m.builtin ? '<span class="badge-online mine">Milikmu</span>' : '',
+      m.edited ? '<span class="badge-online">Diubah</span>' : '',
+      m.hidden ? '<span class="badge-online">Tidak diacak</span>' : ''
+    ].join('');
+  }
+
+  function viewCatalogAll() {
+    const filter = ui.catFilter || 'all';
+    const q = (ui.catQuery || '').trim().toLowerCase();
+    const menus = allMenus();
+    const byFilter = (m) => filter === 'all' || (filter === 'kid' ? m.audience === 'kid' : m.audience === 'adult' && m.type === filter);
+    const rows = menus.filter(byFilter).filter((m) => !q || m.name.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    const count = (f) => menus.filter((m) => f === 'all' || (f === 'kid' ? m.audience === 'kid' : m.audience === 'adult' && m.type === f)).length;
+    const chip = (f, label) => `<button type="button" role="tab" class="chip week-chip" aria-selected="${filter === f}" data-act="cat-filter" data-filter="${f}">${label} <span>${count(f)}</span></button>`;
+    const list = rows.map((m) => `<li class="card fav-card">
+        <button type="button" class="row-link" data-act="open-menu" data-id="${esc(m.id)}">
+          <span class="cat-name">${m.later ? star(14) : ''}<span>${esc(m.name)}</span>${favMainIds().includes(m.id) ? smallHeart : ''}${menuBadges(m)}</span>
+          <span class="t">${TYPE_LABEL(m)} · <span style="${m.audience === 'kid' ? 'color:var(--kid);font-weight:700' : ''}">${AUD_LABEL(m)}</span>${m.audience === 'adult' && isKidOk(m.id) ? ' · ramah anak' : ''}${m.hasRecipe ? '' : ' · belum ada resep'}</span>
+        </button>
+      </li>`).join('');
+    return catalogShell('all', `
+      <div style="padding:14px 20px 0;display:flex;flex-direction:column;gap:10px">
+        <label for="cat-q" class="sr-only">Cari menu</label>
+        <div class="search">${icon('search', 18)}<input id="cat-q" type="search" placeholder="Cari menu di katalog…" value="${esc(ui.catQuery || '')}" data-act="cat-search" data-keep-focus="cat" autocomplete="off"></div>
+        <div class="chips" role="tablist" aria-label="Saring menu">${chip('all', 'Semua')}${chip('main', 'Utama')}${chip('side', 'Pendamping')}${chip('kid', 'Anak')}</div>
+      </div>
+      <ul class="scroll list" data-scroll="catalog" style="padding:14px 16px 96px">
+        ${list || `<li class="empty-cat">Tidak ada menu yang cocok${q ? ` dengan “${esc(ui.catQuery.trim())}”` : ''}.</li>`}
+      </ul>`, `${menus.length} menu · lihat, tambah, dan ubah resep`);
+  }
+
+  function viewLater() {
+    const ideas = (S.ideas || []).filter((x) => x.later !== false);
+    const SRC = { image: 'Dari screenshot', web: 'Dari website', manual: 'Ditulis manual', custom: 'Nama saja' };
     const list = ideas.map((x) => `<li class="card fav-card">
-        <button type="button" class="row-link" data-act="open-idea" data-id="${esc(x.id)}">
+        <button type="button" class="row-link" data-act="open-menu" data-id="${esc(x.id)}">
           <span style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px">${star(15)}${esc(x.name)}</span>
-          <span class="t">${x.type === 'side' ? 'Pendamping' : 'Menu utama'} · ${SRC[x.source] || ''}${x.kidFriendly ? ' · <span style="color:var(--kid)">ramah anak</span>' : ''}</span>
+          <span class="t">${x.type === 'side' ? 'Pendamping' : 'Menu utama'} · ${x.audience === 'kid' ? '<span style="color:var(--kid)">Anak</span>' : 'Dewasa'}${SRC[x.source] ? ' · ' + SRC[x.source] : ''}${x.audience !== 'kid' && x.kidFriendly ? ' · <span style="color:var(--kid)">ramah anak</span>' : ''}</span>
           <span class="t">${(x.ingredients || []).length} bahan · ${(x.steps || []).length} langkah</span>
         </button>
       </li>`).join('');
-    return `<section class="screen" style="position:relative">
-      <header class="page-head"><div><p class="eyebrow">Menu yang kamu suka &amp; ingin dicoba</p><h1>Favorit</h1></div></header>
-      ${segmented}
+    return catalogShell('later', `
       <ul class="scroll list" data-scroll="later" style="padding:16px 16px 96px">
         ${ideas.length ? `<li class="hint" style="padding:0 4px 4px">${star(14)}<span>Menu ★ ikut dipilih saat kamu membuat menu mingguan baru (bisa dimatikan di langkah 1).</span></li>` + list
           : `<li class="card empty" style="margin:0"><div class="ico" style="background:var(--star-soft);color:var(--star)">${star(26)}</div>
               <h2>Simpan ide menu untuk nanti</h2>
               <p>Ketuk tombol + untuk menambah resep dari screenshot, dari website seperti cookpad, atau tulis sendiri.</p></li>`}
-      </ul>
-      ${fab}
-    </section>`;
+      </ul>`, `${ideas.length} ide menu untuk dicoba`);
   }
 
-  // Idea detail -----------------------------------------------------------
-  function viewIdea() {
-    const x = ideaById(ui.view.id);
-    if (!x) { ui.view = null; return viewFav() + tabbar(); }
+  // Menu detail (any catalog menu) -----------------------------------------
+  function viewMenu() {
+    const id = ui.view.id;
+    const m = menuInfo(id);
+    if (!m) { ui.view = null; return viewFav() + tabbar(); }
+    const x = ideaById(id);
+    const foot = !m.builtin
+      ? `<button type="button" class="btn secondary block" style="color:var(--heart)" data-act="idea-delete" data-id="${esc(id)}">Hapus menu</button>`
+      : m.edited ? `<button type="button" class="btn secondary block" data-act="menu-reset" data-id="${esc(id)}">${icon('reset', 18)}Kembalikan resep asli</button>` : '';
     return `<section class="screen">
       <header class="nav-head">
-        <button type="button" class="text-btn accent" data-act="back">${icon('left', 22)}Untuk nanti</button>
-        <button type="button" class="text-btn accent" data-act="idea-edit" data-id="${esc(x.id)}">Edit</button>
+        <button type="button" class="text-btn accent" data-act="back">${icon('left', 22)}Katalog</button>
+        <button type="button" class="text-btn accent" data-act="menu-edit" data-id="${esc(id)}">${icon('pencil', 18)}Ubah</button>
       </header>
-      <div class="scroll" data-scroll="idea-${esc(x.id)}" style="padding:8px 20px 24px;display:flex;flex-direction:column;gap:18px">
+      <div class="scroll" data-scroll="menu-${esc(id)}" style="padding:8px 20px 24px;display:flex;flex-direction:column;gap:16px">
         <div class="detail-title">
-          <p class="kicker" style="color:var(--star-ink)">${star(14)} Menu untuk nanti · ${x.type === 'side' ? 'Pendamping' : 'Menu utama'}</p>
-          <h1>${esc(x.name)}</h1>
-          ${x.kidFriendly ? '<p class="kidsub">Ramah anak</p>' : ''}
+          <p class="kicker">${m.later ? `<span style="color:var(--star-ink)">${star(14)} Untuk nanti</span> · ` : ''}${TYPE_LABEL(m)} · <span style="${m.audience === 'kid' ? 'color:var(--kid)' : ''}">${AUD_LABEL(m)}</span></p>
+          <h1>${esc(m.name)}</h1>
+          <p style="display:flex;gap:6px;flex-wrap:wrap">${menuBadges(m)}${m.audience === 'adult' && isKidOk(id) ? '<span class="badge-online" style="color:var(--kid);border-color:var(--kid-line)">Ramah anak</span>' : ''}</p>
         </div>
-        ${recipeBlock(x.id)}
+        <div class="card" style="padding:4px 0">
+          <button type="button" class="switch-row plain" role="switch" aria-checked="${!m.hidden}" data-act="menu-hidden" data-id="${esc(id)}">
+            ${icon('shuffle', 18, 'style="flex-shrink:0;color:var(--accent)"')}<span class="txt"><b>Ikut diacak</b><small>${m.hidden ? 'Tidak dipilih saat acak, tapi tetap bisa dipilih sendiri' : 'Bisa terpilih saat membuat menu mingguan'}</small></span><span class="switch" aria-hidden="true"></span>
+          </button>
+          ${!m.builtin ? `<button type="button" class="switch-row plain" role="switch" aria-checked="${m.later}" data-act="menu-later" data-id="${esc(id)}">
+            ${star(18)}<span class="txt"><b>Untuk nanti</b><small>Prioritas saat membuat menu baru (maks. 2 per minggu)</small></span><span class="switch" aria-hidden="true"></span>
+          </button>` : ''}
+        </div>
+        ${recipeBlock(id)}
       </div>
-      <div class="sheet-foot">
-        <button type="button" class="btn secondary block" style="color:var(--heart)" data-act="idea-delete" data-id="${esc(x.id)}">Hapus dari daftar</button>
-      </div>
+      ${foot ? `<div class="sheet-foot">${foot}</div>` : ''}
     </section>`;
   }
 
   // Add-idea sheet ---------------------------------------------------------
   function viewIdeaSheet() {
     const sh = ui.ideaSheet;
-    const titles = { choose: 'Tambah menu untuk nanti', image: 'Dari screenshot', web: 'Dari website', edit: sh.editingId ? 'Edit menu' : 'Periksa & simpan' };
+    const titles = { choose: sh.later ? 'Tambah menu untuk nanti' : 'Tambah menu', image: 'Dari screenshot', web: 'Dari website', edit: sh.editingId ? 'Ubah menu' : 'Periksa & simpan' };
     let body = '';
     let foot = '';
     if (sh.step === 'choose') {
@@ -794,22 +911,33 @@
         ${sh.note ? `<p class="note">${icon('info', 18, 'style="flex-shrink:0;color:var(--accent)"')}<span>${esc(sh.note)}</span></p>` : ''}
         <label class="label" for="idea-title">Judul masakan</label>
         <input id="idea-title" class="field" type="text" placeholder="Misalnya: Ayam Bumbu Rujak" value="${esc(d.name)}">
-        <span class="label">Jenis</span>
+        <span class="label">Menu untuk</span>
+        <div class="segmented" role="radiogroup" aria-label="Peruntukan menu" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button type="button" role="radio" aria-checked="${d.audience !== 'kid'}" aria-selected="${d.audience !== 'kid'}" data-act="idea-aud" data-aud="adult">Dewasa</button>
+          <button type="button" role="radio" class="kid" aria-checked="${d.audience === 'kid'}" aria-selected="${d.audience === 'kid'}" data-act="idea-aud" data-aud="kid">${icon('kid', 16, 'style="vertical-align:-3px"')} Anak</button>
+        </div>
+        ${d.audience === 'kid'
+          ? '<p class="hint" style="padding:0;font-size:12px">Menu anak dipakai sebagai menu khusus anak saat membuat menu mingguan.</p>'
+          : `<span class="label">Jenis</span>
         <div class="segmented" role="radiogroup" aria-label="Jenis menu" style="grid-template-columns:repeat(2,minmax(0,1fr))">
           <button type="button" role="radio" aria-checked="${d.type !== 'side'}" aria-selected="${d.type !== 'side'}" data-act="idea-type" data-type="main">Menu utama</button>
           <button type="button" role="radio" aria-checked="${d.type === 'side'}" aria-selected="${d.type === 'side'}" data-act="idea-type" data-type="side">Pendamping</button>
         </div>
         <button type="button" class="switch-row" role="switch" aria-checked="${!!d.kidFriendly}" data-act="idea-kid">
           ${icon('kid', 18, 'style="flex-shrink:0;color:var(--kid)"')}<span class="txt"><b>Ramah anak</b><small>Anak ikut makan menu ini</small></span><span class="switch" aria-hidden="true"></span>
-        </button>
+        </button>`}
+        ${sh.builtinId ? '' : `<button type="button" class="switch-row" role="switch" aria-checked="${!!d.later}" data-act="idea-later">
+          ${star(18)}<span class="txt"><b>Simpan juga ke Untuk nanti</b><small>Diutamakan saat membuat menu mingguan baru</small></span><span class="switch" aria-hidden="true"></span>
+        </button>`}
+        ${sh.builtinId ? '<p class="note" style="font-size:12px">' + icon('info', 16, 'style="flex-shrink:0;color:var(--accent)"') + '<span>Ini menu bawaan. Perubahanmu disimpan sebagai versi milikmu dan bisa dikembalikan ke resep asli kapan saja.</span></p>' : ''}
         <label class="label" for="idea-ings">Bahan-bahan <small>(satu bahan per baris, contoh: 500 gr ayam)</small></label>
         <textarea id="idea-ings" class="field" rows="8" placeholder="500 gr ayam&#10;5 butir bawang merah&#10;2 sdm kecap manis">${esc(d.ingredientsText)}</textarea>
         <label class="label" for="idea-steps">Cara memasak <small>(satu langkah per baris)</small></label>
         <textarea id="idea-steps" class="field" rows="7" placeholder="Haluskan bumbu.&#10;Tumis hingga harum.">${esc(d.stepsText)}</textarea>
-        <label class="label" for="idea-src">Link resep (opsional)</label>
-        <input id="idea-src" class="field" type="url" inputmode="url" placeholder="https://…" value="${esc(d.url || '')}">
+        ${sh.builtinId ? '' : `<label class="label" for="idea-src">Link resep (opsional)</label>
+        <input id="idea-src" class="field" type="url" inputmode="url" placeholder="https://…" value="${esc(d.url || '')}">`}
       </div>`;
-      foot = `<button type="button" class="btn secondary" data-act="${sh.editingId ? 'idea-close' : 'idea-back'}">${sh.editingId ? 'Batal' : 'Kembali'}</button><button type="button" class="btn primary grow" data-act="idea-save">${star(16)} Simpan ke untuk nanti</button>`;
+      foot = `<button type="button" class="btn secondary" data-act="${sh.editingId ? 'idea-close' : 'idea-back'}">${sh.editingId ? 'Batal' : 'Kembali'}</button><button type="button" class="btn primary grow" data-act="idea-save">${d.later ? star(16) + ' Simpan ke Untuk nanti' : icon('check', 18, 'stroke-width="2.6"') + 'Simpan menu'}</button>`;
     }
     const anim = sh.fresh ? ' anim' : '';
     sh.fresh = false;
@@ -1121,15 +1249,15 @@
     }).join('');
     return `<div class="sheet-body" data-scroll="step1">
       <div class="intro"><p class="kicker">Langkah 1 · ${weekLabel(ui.sheet.weekStart)}</p><p>Acak ulang yang belum cocok, ketuk nama menu untuk memilih sendiri, atau <b>geser kartu ke kiri</b> untuk mengosongkan hari itu.</p></div>
-      <div class="note">${icon('book', 18, 'style="flex-shrink:0;color:var(--accent)"')}<span><strong>Dari koleksi menumu</strong>${MAINS.filter((m) => m.source === 'user').length} menu utama + ${SIDES.length} pendamping milikmu, ditambah ${MAINS.filter((m) => m.source === 'online').length} resep online. Minggu ini ${mineCount} dari 7 menu dari koleksimu.</span></div>
+      <div class="note">${icon('book', 18, 'style="flex-shrink:0;color:var(--accent)"')}<span><strong>Dari katalog menumu</strong>${adultMains().filter((m) => m.source !== 'online').length} menu utama + ${adultSides().length} pendamping milikmu, ditambah ${adultMains().filter((m) => m.source === 'online').length} resep online. Minggu ini ${mineCount} dari 7 menu dari koleksimu.</span></div>
       <button type="button" class="switch-row" role="switch" aria-checked="${S.preferFav}" data-act="prefer-fav">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--heart)" stroke="var(--heart)" stroke-width="2" aria-hidden="true" style="flex-shrink:0">${P.heart}</svg>
         <span class="txt"><b>Utamakan menu favorit</b><small>${favCount} dari 7 menu ini favoritmu</small></span>
         <span class="switch" aria-hidden="true"></span>
       </button>
-      ${(S.ideas || []).length ? `<button type="button" class="switch-row" role="switch" aria-checked="${S.includeIdeas}" data-act="include-ideas">
+      ${laterCount() ? `<button type="button" class="switch-row" role="switch" aria-checked="${S.includeIdeas}" data-act="include-ideas">
         ${star(18)}
-        <span class="txt"><b>Sertakan menu untuk nanti</b><small>${S.includeIdeas ? `${ideaCount} menu ★ minggu ini · sampai 2 per minggu` : `${S.ideas.length} ide tersimpan, tidak diikutkan`}</small></span>
+        <span class="txt"><b>Sertakan menu untuk nanti</b><small>${S.includeIdeas ? `${ideaCount} menu ★ minggu ini · sampai 2 per minggu` : `${laterCount()} ide tersimpan, tidak diikutkan`}</small></span>
         <span class="switch" aria-hidden="true"></span>
       </button>` : ''}
       <div class="section-head"><h2>Menu Dewasa</h2><button type="button" class="text-btn small accent" style="margin:-12px -8px" data-act="shuffle-all">${icon('shuffle', 16)}Acak semua</button></div>
@@ -1194,27 +1322,29 @@
     const q = pk.query.trim().toLowerCase();
     const match = (name) => !q || name.toLowerCase().includes(q);
     const current = pk.kind === 'main' ? d.mainId : pk.kind === 'side' ? d.sideId : kidIdFor(d);
-    const customs = (S.customMenus || []).filter((c) => (c.kind || 'main') === pk.kind || (pk.kind === 'kid' && (c.kind || 'main') === 'main'));
+    // Everything in the catalog can be picked by hand, including menus hidden from random picks.
+    const menus = allMenus();
+    const row = (m) => [m.id, m.name, m.later];
     let groups;
     if (pk.kind === 'main') {
+      const adult = menus.filter((m) => m.type === 'main' && m.audience === 'adult');
       groups = [
-        ['★ Untuk nanti', (S.ideas || []).filter((x) => x.type !== 'side').map((x) => [x.id, x.name, true])],
-        ['Koleksi menumu', MAINS.filter((m) => m.source === 'user').map((m) => [m.id, m.name])],
-        ['Resep online', MAINS.filter((m) => m.source === 'online').map((m) => [m.id, m.name])],
-        ['Menu tambahanmu', customs.map((c) => [c.id, c.name])]
+        ['★ Untuk nanti', adult.filter((m) => m.later).map(row)],
+        ['Koleksi menumu', adult.filter((m) => m.builtin && m.source === 'user').map(row)],
+        ['Menu buatanmu', adult.filter((m) => !m.builtin && !m.later).map(row)],
+        ['Resep online', adult.filter((m) => m.source === 'online').map(row)]
       ];
     } else if (pk.kind === 'side') {
+      const sides = menus.filter((m) => m.type === 'side' && m.audience === 'adult');
       groups = [
-        ['★ Untuk nanti', (S.ideas || []).filter((x) => x.type === 'side').map((x) => [x.id, x.name, true])],
-        ['Pendamping koleksimu', SIDES.map((s) => [s.id, s.name])],
-        ['Menu tambahanmu', customs.map((c) => [c.id, c.name])]
+        ['★ Untuk nanti', sides.filter((m) => m.later).map(row)],
+        ['Pendamping koleksimu', sides.filter((m) => m.builtin).map(row)],
+        ['Menu buatanmu', sides.filter((m) => !m.builtin && !m.later).map(row)]
       ];
     } else {
       groups = [
-        ['Menu anak', KIDS.map((k) => [k.id, k.name])],
-        ['Menu dewasa yang ramah anak', MAINS.filter((m) => isKidOk(m.id)).map((m) => [m.id, m.name])
-          .concat((S.ideas || []).filter((x) => x.kidFriendly && x.type !== 'side').map((x) => [x.id, x.name, true]))],
-        ['Menu tambahanmu', customs.map((c) => [c.id, c.name])]
+        ['Menu anak', menus.filter((m) => m.audience === 'kid').map(row)],
+        ['Menu dewasa yang ramah anak', menus.filter((m) => m.audience === 'adult' && m.type === 'main' && isKidOk(m.id)).map(row)]
       ];
     }
     const exact = groups.some(([, items]) => items.some(([, n]) => n.toLowerCase() === q));
@@ -1252,7 +1382,7 @@
       d.mainId = id;
       if (!d.sideId) {
         const used = days.filter((_, k) => k !== pk.day).map((x) => x.sideId);
-        d.sideId = uniqueSide(MAIN[id] ? MAIN[id].defaultSideId : pick(SIDES).id, used);
+        d.sideId = uniqueSide(MAIN[id] ? MAIN[id].defaultSideId : null, used);
       }
     } else if (pk.kind === 'side') {
       d.sideId = id;
@@ -1294,7 +1424,55 @@
     // ----- Untuk nanti -----
     'fav-seg': (el) => { ui.favSeg = el.dataset.seg; render(); },
     'include-ideas': () => { S.includeIdeas = !S.includeIdeas; save(); ui.sheet.days = generateDays(); render(); },
-    'idea-new': () => { ui.ideaSheet = { step: 'choose', fresh: true }; render(); },
+    'idea-new': () => { ui.ideaSheet = { step: 'choose', fresh: true, later: true }; render(); },
+    'menu-new': (el) => { ui.ideaSheet = { step: 'choose', fresh: true, later: el.dataset.later === 'true' }; render(); },
+    'cat-filter': (el) => { ui.catFilter = el.dataset.filter; render(); },
+    'open-menu': (el) => { ui.view = { type: 'menu', id: el.dataset.id }; render(); },
+    'idea-aud': (el) => { captureIdeaForm(); ui.ideaSheet.draft.audience = el.dataset.aud; if (el.dataset.aud === 'kid') ui.ideaSheet.draft.type = 'main'; render(); },
+    'idea-later': () => { captureIdeaForm(); ui.ideaSheet.draft.later = !ui.ideaSheet.draft.later; render(); },
+    'menu-edit': (el) => {
+      const id = el.dataset.id;
+      const m = menuInfo(id);
+      if (!m) return;
+      if (m.builtin) {
+        const r = recipeRows(id);
+        const ingredientsText = rowsToText(r.rows);
+        const stepsText = r.steps.join('\n');
+        ui.ideaSheet = {
+          step: 'edit', fresh: true, editingId: id, builtinId: id, note: null,
+          original: { name: m.name, ingredientsText, stepsText },
+          draft: { name: m.name, type: m.type, audience: m.audience, kidFriendly: isKidOk(id), later: false, url: '', source: 'builtin', ingredientsText, stepsText }
+        };
+      } else {
+        const x = ideaById(id);
+        ui.ideaSheet = {
+          step: 'edit', fresh: true, editingId: id, note: null,
+          draft: {
+            name: x.name, type: x.type || 'main', audience: x.audience || 'adult', kidFriendly: !!x.kidFriendly, later: x.later !== false,
+            url: x.url || '', source: x.source,
+            ingredientsText: (x.ingredients || []).map((i) => i.text || [i.qtyText, i.name].filter(Boolean).join(' ') + (i.note ? ', ' + i.note : '')).join('\n'),
+            stepsText: (x.steps || []).join('\n')
+          }
+        };
+      }
+      render();
+    },
+    'menu-reset': (el) => {
+      const id = el.dataset.id;
+      if (!window.confirm('Kembalikan ke resep asli? Perubahan nama, jenis, bahan, dan langkah akan dihapus.')) return;
+      const hidden = editOf(id) && editOf(id).hidden;
+      if (hidden) S.menuEdits[id] = { hidden: true }; else delete S.menuEdits[id];
+      save();
+      toast('Resep asli dikembalikan');
+    },
+    'menu-hidden': (el) => {
+      const id = el.dataset.id;
+      const x = ideaById(id);
+      if (x) x.hidden = !x.hidden;
+      else S.menuEdits[id] = Object.assign({}, S.menuEdits[id], { hidden: !(editOf(id) && editOf(id).hidden) });
+      save(); render();
+    },
+    'menu-later': (el) => { const x = ideaById(el.dataset.id); if (x) { x.later = x.later === false; save(); render(); } },
     'idea-close': () => { ui.ideaSheet = null; render(); },
     'idea-back': () => { captureIdeaForm(); ui.ideaSheet.step = 'choose'; ui.ideaSheet.error = null; render(); },
     'idea-manual': () => { Object.assign(ui.ideaSheet, { step: 'edit', draft: emptyIdeaDraft('manual'), note: null }); render(); },
@@ -1327,23 +1505,48 @@
         const p = window.IdeaKit.parseIngredientLine(l, D.ingredients);
         return { text: p.text, name: p.name, qty: p.qty, qtyText: p.qtyText, note: p.note, category: p.category, vocabId: p.vocabId };
       });
+      const type = d.audience === 'kid' ? 'main' : (d.type === 'side' ? 'side' : 'main');
+      const audience = d.audience === 'kid' ? 'kid' : 'adult';
+      if (sh.builtinId) {
+        // Built-in menu: store only what changed, on top of the bundled recipe.
+        const id = sh.builtinId;
+        const orig = { name: (MAIN[id] || SIDE[id] || KID[id]).name, type: MAIN[id] || KID[id] ? 'main' : 'side', audience: KID[id] ? 'kid' : 'adult' };
+        const prev = editOf(id) || {};
+        const next = { hidden: prev.hidden || undefined };
+        if (d.name.trim() !== orig.name) next.name = d.name.trim();
+        if (type !== orig.type) next.type = type;
+        if (audience !== orig.audience) next.audience = audience;
+        if (d.ingredientsText.trim() !== sh.original.ingredientsText.trim()) next.ingredients = ingredients;
+        else if (prev.ingredients) next.ingredients = prev.ingredients;
+        if (d.stepsText.trim() !== sh.original.stepsText.trim()) next.steps = lines(d.stepsText);
+        else if (prev.steps) next.steps = prev.steps;
+        Object.keys(next).forEach((k) => next[k] === undefined && delete next[k]);
+        if (Object.keys(next).length) S.menuEdits[id] = next; else delete S.menuEdits[id];
+        if (audience === 'adult' && !!d.kidFriendly !== isKidOk(id)) S.kidOverrides[id] = !!d.kidFriendly;
+        save();
+        ui.ideaSheet = null;
+        toast('Perubahan disimpan');
+        return;
+      }
       const idea = {
-        name: d.name.trim(), type: d.type === 'side' ? 'side' : 'main', kidFriendly: !!d.kidFriendly,
+        name: d.name.trim(), type, audience, kidFriendly: audience === 'adult' && !!d.kidFriendly, later: !!d.later,
         source: d.source || 'manual', url: (d.url || '').trim(), ingredients, steps: lines(d.stepsText)
       };
       S.ideas = S.ideas || [];
+      let newId = null;
       if (sh.editingId) {
         const i = S.ideas.findIndex((x) => x.id === sh.editingId);
         if (i >= 0) S.ideas[i] = Object.assign({}, S.ideas[i], idea);
       } else {
-        S.ideas.unshift(Object.assign({ id: 'idea-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), createdAt: Date.now() }, idea));
-        ui.tab = 'fav'; ui.favSeg = 'later'; ui.view = null;
+        newId = 'menu-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        S.ideas.unshift(Object.assign({ id: newId, createdAt: Date.now() }, idea));
+        ui.tab = 'fav'; ui.favSeg = idea.later ? 'later' : 'all'; ui.view = { type: 'menu', id: newId };
       }
       save();
       ui.ideaSheet = null;
-      toast(sh.editingId ? 'Perubahan disimpan' : 'Disimpan ke Untuk nanti ★');
+      toast(sh.editingId ? 'Perubahan disimpan' : idea.later ? 'Disimpan ke Untuk nanti ★' : 'Menu ditambahkan ke katalog');
     },
-    'open-idea': (el) => { ui.view = { type: 'idea', id: el.dataset.id }; render(); },
+    'open-idea': (el) => { ui.view = { type: 'menu', id: el.dataset.id }; render(); },
     'idea-edit': (el) => {
       const x = ideaById(el.dataset.id);
       if (!x) return;
@@ -1363,11 +1566,12 @@
         toast('Menu ini masih dipakai di menu mingguan, hapus setelah minggunya selesai');
         return;
       }
-      if (!window.confirm('Hapus menu ini dari daftar Untuk nanti?')) return;
+      if (!window.confirm(`Hapus “${nameOf(id)}” dari katalog?`)) return;
       S.ideas = (S.ideas || []).filter((x) => x.id !== id);
+      S.favorites = S.favorites.filter((k) => !k.split('|').includes(id));
       save();
       ui.view = null;
-      toast('Dihapus dari Untuk nanti');
+      toast('Menu dihapus');
     },
     'sync-create': () => {
       const code = newFamilyCode();
@@ -1453,11 +1657,15 @@
     'pick-custom': () => {
       const name = ui.picker.query.trim();
       if (!name) return;
-      S.customMenus = S.customMenus || [];
-      let c = S.customMenus.find((x) => x.name.toLowerCase() === name.toLowerCase() && (x.kind || 'main') === ui.picker.kind);
+      // A typed name becomes a plain catalog menu (no recipe yet) that can be completed later in Katalog.
+      const kind = ui.picker.kind;
+      const type = kind === 'side' ? 'side' : 'main';
+      const audience = kind === 'kid' ? 'kid' : 'adult';
+      S.ideas = S.ideas || [];
+      let c = S.ideas.find((x) => x.name.toLowerCase() === name.toLowerCase() && (x.type || 'main') === type && (x.audience || 'adult') === audience);
       if (!c) {
-        c = { id: 'custom-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: name.charAt(0).toUpperCase() + name.slice(1), kind: ui.picker.kind };
-        S.customMenus.push(c);
+        c = { id: 'menu-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: name.charAt(0).toUpperCase() + name.slice(1), type, audience, later: false, source: 'custom', ingredients: [], steps: [], createdAt: Date.now() };
+        S.ideas.push(c);
         save();
       }
       choosePicked(c.id);
@@ -1538,8 +1746,11 @@
 
   // ----- Untuk nanti helpers -----
   function emptyIdeaDraft(source) {
-    return { name: '', type: 'main', kidFriendly: false, url: '', source, ingredientsText: '', stepsText: '' };
+    const later = !!(ui.ideaSheet && ui.ideaSheet.later);
+    return { name: '', type: 'main', audience: 'adult', kidFriendly: false, later, url: '', source, ingredientsText: '', stepsText: '' };
   }
+  /** Recipe rows → editable text lines ("500 g ayam, potong dadu"). */
+  const rowsToText = (rows) => rows.map((r) => (r.qtyText && r.qtyText !== 'secukupnya' ? r.qtyText + ' ' : '') + r.label + (r.qtyText === 'secukupnya' ? ' secukupnya' : '') + (r.note ? ', ' + r.note : '')).join('\n');
   function draftFromText(text, source, url) {
     const p = window.IdeaKit.parseRecipeText(text);
     const sh = ui.ideaSheet;
@@ -1615,6 +1826,7 @@
       if (again) { again.focus(); again.setSelectionRange(pos, pos); }
     }
     if (el.dataset.act === 'picker-search' && ui.picker) { ui.picker.query = el.value; render(); }
+    if (el.dataset.act === 'cat-search') { ui.catQuery = el.value; render(); }
   });
 
   // Swipe a step-1 card to the left to empty that day (adult menu or kids menu).

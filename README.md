@@ -18,9 +18,17 @@ Ada dua versi yang memakai data resep yang sama:
 https://juliansl.github.io/daily-menu/ — otomatis diperbarui setiap kali ada push ke `main`
 (workflow `.github/workflows/pages.yml`). Di iPhone: buka di Safari → Share → Add to Home Screen.
 
+### Katalog
+
+Tab **Katalog** berisi **Semua** menu (bisa dicari dan disaring Utama / Pendamping / Anak),
+**Favorit**, dan **★ Nanti**. Setiap menu punya jenis (utama/pendamping) dan peruntukan (dewasa/anak).
+Menu baru disimpan di data pengguna (`S.ideas`). Perubahan pada menu bawaan disimpan di `S.menuEdits`
+di atas resep asli dan bisa dikembalikan. Sakelar "Ikut diacak" mengeluarkan menu dari pilihan acak.
+Menu dengan peruntukan anak dipakai sebagai menu khusus anak saat generate.
+
 ### Untuk nanti (★)
 
-Tab Favorit → **Untuk nanti** → tombol **+**: tambah resep dari screenshot (dibaca dengan OCR
+Katalog → **Nanti** → tombol **+**: tambah resep dari screenshot (dibaca dengan OCR
 Tesseract.js di HP, bahasa Indonesia), dari website (tempel link + teks resep yang disalin), atau tulis manual.
 Bahan dikenali ke kosakata `data/ingredients.json` bila bisa (lihat `web/ideas.js`), sehingga ikut
 digabung di daftar belanja. Saat membuat menu baru, sampai 2 menu ★ ikut dipilih (sakelar di langkah 1).

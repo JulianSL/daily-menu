@@ -345,3 +345,10 @@ label.label small { font-weight: 500; }
 
 .toast { position: absolute; left: 50%; bottom: calc(90px + var(--safe-bottom)); transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 40; animation: fade .2s; white-space: nowrap; }
 .hint { font-size: 13px; line-height: 1.45; color: var(--muted); padding: 0 4px; display: flex; gap: 8px; }
+
+/* Katalog */
+.cat-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; text-align: left; }
+.badge-online.mine { color: var(--accent); border-color: var(--accent); }
+.switch-row.plain { border: 0; border-radius: 0; background: transparent; }
+.switch-row.plain + .switch-row.plain { border-top: 1px solid var(--line-soft); }
+.segmented button.kid[aria-selected="true"] { color: var(--kid); }

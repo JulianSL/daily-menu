@@ -1,5 +1,5 @@
 // Simple offline cache so the app keeps working in the kitchen without signal.
-const CACHE = 'menu-mingguan-v5';
+const CACHE = 'menu-mingguan-v6';
 const FILES = ['./', 'index.html', 'styles.css', 'ideas.js', 'app.js', 'data.js', 'sync.js', 'firebase-config.js', 'manifest.webmanifest', 'icon.svg', 'icon-180.png'];
 
 self.addEventListener('install', (e) => {
