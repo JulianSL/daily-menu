@@ -6,3 +6,4 @@ Thumbs.db
 .build/
 xcuserdata/
 *.xcuserstate
+graft/
