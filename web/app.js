@@ -17,8 +17,11 @@
   const KID = {}; KIDS.forEach((k) => { KID[k.id] = k; });
   const nameOf = (id) => (MAIN[id] || SIDE[id] || KID[id] || R[id] || ideaById(id) || { name: id }).name;
   // "Untuk nanti" ideas live in the user's state (S.ideas) and sync with it.
-  function ideaById(id) { return (typeof S !== 'undefined' && S.ideas || []).find((x) => x.id === id) || null; }
-  const isIdea = (id) => !!ideaById(id);
+  function ideaById(id) {
+    if (!id || typeof S === 'undefined') return null;
+    return (S.ideas || []).find((x) => x.id === id) || (S.customMenus || []).find((x) => x.id === id) || null;
+  }
+  const isIdea = (id) => !!(id && typeof S !== 'undefined' && (S.ideas || []).some((x) => x.id === id));
 
   const DAY_NAMES = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const DAY_SHORT = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'];
@@ -35,8 +38,11 @@
   const KEY = 'menuMingguan.v1';
   function defaults() {
     return {
-      plan: null,              // { weekStart: 'YYYY-MM-DD', days: [{mainId, sideId, kidId|null, done}] }
-      shopping: {},            // ingredientId -> true (already bought / in stock)
+      // Menus per week, keyed by the Monday: { 'YYYY-MM-DD': { weekStart, days: [{mainId|null, sideId|null, kidId, done}] } }
+      // mainId null = empty day. kidId: null = same as adults, '' = no kids menu, id = own kids menu.
+      plans: {},
+      shoppingByWeek: {},      // { 'YYYY-MM-DD': { shoppingKey: true } } bought / already in stock
+      customMenus: [],         // names typed in "Pilih sendiri" that are not in the catalog: [{id, name}]
       favorites: D.menus.favorites.filter((id) => MAIN[id]).map((id) => id + '|' + MAIN[id].defaultSideId),
       kidOverrides: {},        // mainId -> bool (user's own "ramah anak" marks)
       preferFav: true,
@@ -45,10 +51,22 @@
       updatedAt: 0            // ms timestamp of the last local change (for sync)
     };
   }
+  /** Older versions kept one `plan` + `shopping`; move them into the per-week maps. */
+  function migrate(s) {
+    s.plans = s.plans || {};
+    s.shoppingByWeek = s.shoppingByWeek || {};
+    if (s.plan && s.plan.weekStart) {
+      if (!s.plans[s.plan.weekStart]) s.plans[s.plan.weekStart] = s.plan;
+      if (s.shopping && !s.shoppingByWeek[s.plan.weekStart]) s.shoppingByWeek[s.plan.weekStart] = s.shopping;
+    }
+    delete s.plan;
+    delete s.shopping;
+    return s;
+  }
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) return Object.assign(defaults(), JSON.parse(raw));
+      if (raw) return migrate(Object.assign(defaults(), JSON.parse(raw)));
     } catch (e) { /* storage unavailable: start fresh */ }
     return defaults();
   }
@@ -81,6 +99,7 @@
   function replaceState(next) {
     Object.keys(S).forEach((k) => { delete S[k]; });
     Object.assign(S, defaults(), next);
+    migrate(S);
   }
   function applyRemote(state) {
     if (pushTimer || (state.updatedAt || 0) < (S.updatedAt || 0)) {
@@ -124,6 +143,8 @@
     shopHide: false,
     favQuery: '',
     expanded: {},         // "scope:ingredientId" -> accordion open in a shopping list
+    week: thisMonday(),   // week shown on Home (and used by detail / reorder / Belanja)
+    picker: null,         // {kind: main|side|kid, day, query} — "Pilih sendiri" in step 1
     toast: null
   };
 
@@ -151,12 +172,35 @@
 
   function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function parseIso(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
-  function upcomingMonday() {
+  /** Monday of the current week, as YYYY-MM-DD. */
+  function thisMonday() {
     const t = new Date(); t.setHours(0, 0, 0, 0);
-    const dow = (t.getDay() + 6) % 7; // 0 = Monday
-    const add = dow === 0 ? 0 : 7 - dow;
-    t.setDate(t.getDate() + add);
-    return t;
+    t.setDate(t.getDate() - ((t.getDay() + 6) % 7));
+    return iso(t);
+  }
+  function addWeeks(weekIso, n) { const d = parseIso(weekIso); d.setDate(d.getDate() + 7 * n); return iso(d); }
+  function weekOffset(weekIso) { return Math.round((parseIso(weekIso) - parseIso(thisMonday())) / (7 * 86400000)); }
+  function weekLabel(weekIso) {
+    const n = weekOffset(weekIso);
+    return n === 0 ? 'Minggu Ini' : n === 1 ? 'Minggu Depan' : n === -1 ? 'Minggu Lalu' : n > 1 ? n + ' Minggu Lagi' : n * -1 + ' Minggu Lalu';
+  }
+  /** Weeks shown on Home: last week (if planned), this week, next week, every planned future week, plus one more to prepare. */
+  function weekPages() {
+    const cur = thisMonday();
+    const set = new Set([cur, addWeeks(cur, 1)]);
+    if (S.plans[addWeeks(cur, -1)]) set.add(addWeeks(cur, -1));
+    Object.keys(S.plans).forEach((w) => { if (w > cur) set.add(w); });
+    const last = [...set].sort().pop();
+    if (S.plans[last] && weekOffset(last) < 4) set.add(addWeeks(last, 1));
+    return [...set].sort();
+  }
+  const planOf = (week) => S.plans[week] || null;
+  const shopOf = (week) => S.shoppingByWeek[week] || (S.shoppingByWeek[week] = {});
+  /** The week the Belanja tab shows: the one on Home if it has a menu, else the nearest planned week. */
+  function shopWeek() {
+    if (planOf(ui.week)) return ui.week;
+    const weeks = Object.keys(S.plans).sort();
+    return weeks.find((w) => w >= thisMonday()) || weeks.pop() || null;
   }
   function weekDates(startIso) {
     const s = parseIso(startIso);
@@ -215,6 +259,7 @@
     copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>',
     share: '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
+    trash: '<path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/>',
     image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8.5 8.5"/>',
     link: '<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',
     pencil: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'
@@ -281,7 +326,14 @@
     const next = pick(pool.length ? pool : fallback);
     if (next) days[i] = Object.assign({}, days[i], { sideId: next });
   }
-  const kidIdFor = (d) => (isKidOk(d.mainId) ? null : d.kidMenuId);
+  /** Kids menu of a draft day: none (emptied), pick (chosen by hand), same (eats the adult menu) or auto (random kids menu). */
+  function kidState(d) {
+    if (d.kidMode === 'none') return { kind: 'none' };
+    if (d.kidMode === 'pick' && d.kidPickId) return { kind: 'pick', id: d.kidPickId };
+    if (d.mainId && isKidOk(d.mainId)) return { kind: 'same' };
+    return { kind: 'auto', id: d.kidMenuId };
+  }
+  const kidIdFor = (d) => { const k = kidState(d); return k.kind === 'none' ? '' : k.kind === 'same' ? null : k.id; };
 
   // ---------- Recipes (catalog or idea) as uniform rows ----------
   // row.key is the shopping-list id: a vocabulary id when known, otherwise "x:<name>".
@@ -369,9 +421,40 @@
     else html = (ui.tab === 'home' ? viewHome() : ui.tab === 'shop' ? viewShop() : viewFav()) + tabbar();
     if (ui.sheet) html += viewSheet();
     if (ui.ideaSheet) html += viewIdeaSheet();
+    if (ui.picker) html += viewPicker();
     if (ui.toast) html += `<div class="toast" role="status">${esc(ui.toast.text)}${ui.toast.undo ? ' · <button class="text-btn small" style="color:#fff;text-decoration:underline" data-act="undo">Urungkan</button>' : ''}</div>`;
+    const focused = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.keepFocus;
+    const caret = focused ? document.activeElement.selectionStart : null;
     app.innerHTML = html;
     app.querySelectorAll('[data-scroll]').forEach((el) => { if (scrolls[el.dataset.scroll] != null) el.scrollTop = scrolls[el.dataset.scroll]; });
+    if (focused) {
+      const el = app.querySelector(`[data-keep-focus="${focused}"]`);
+      if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch (e) { /* not a text field */ } }
+    }
+    bindWeekPager();
+  }
+
+  // Horizontal week pager: keep the page in view across re-renders, follow swipes.
+  function bindWeekPager() {
+    const pager = app.querySelector('[data-hscroll="weeks"]');
+    if (!pager) return;
+    const pages = pager.dataset.pages.split(',');
+    const idx = Math.max(0, pages.indexOf(ui.week));
+    const jump = () => { pager.scrollLeft = idx * pager.clientWidth; };
+    if (ui.scrollToWeek) {
+      ui.scrollToWeek = false;
+      pager.scrollTo({ left: idx * pager.clientWidth, behavior: 'smooth' });
+    } else {
+      jump();
+    }
+    let t = null;
+    pager.addEventListener('scroll', () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const i = Math.round(pager.scrollLeft / pager.clientWidth);
+        if (pages[i] && pages[i] !== ui.week) { ui.week = pages[i]; render(); }
+      }, 140);
+    }, { passive: true });
   }
 
   function toast(text, undo) {
@@ -382,7 +465,7 @@
   }
 
   function tabbar() {
-    const left = S.plan ? countLeft() : 0;
+    const left = shopWeek() ? countLeft(shopWeek()) : 0;
     const tab = (id, ic, label, extra = '') =>
       `<button type="button" data-act="tab" data-tab="${id}" ${ui.tab === id ? 'aria-current="page"' : ''}>${ic}${label}${extra}</button>`;
     return `<nav class="tabbar" aria-label="Navigasi utama">
@@ -392,65 +475,97 @@
     </nav>`;
   }
 
-  function countLeft() {
+  function countLeft(week) {
+    const p = planOf(week);
+    if (!p) return 0;
+    const have = shopOf(week);
     let left = 0;
-    buildShopping(planDaysForShopping(S.plan.days)).forEach((c) => c.items.forEach((it) => { if (!S.shopping[it.id]) left++; }));
+    buildShopping(planDaysForShopping(p.days)).forEach((c) => c.items.forEach((it) => { if (!have[it.id]) left++; }));
     return left;
   }
+  const kidLine = (d) => (d.kidId === '' ? 'tidak ada' : d.kidId ? esc(nameOf(d.kidId)) : d.mainId ? 'sama' : '—');
 
-  // Home ------------------------------------------------------------
+  // Home: one page per week, swipe horizontally ------------------------------
   function viewHome() {
-    if (!S.plan) return viewHomeEmpty();
-    const p = S.plan;
-    const dates = weekDates(p.weekStart);
-    const ti = todayIndex(p.weekStart);
-    const done = p.days.filter((d) => d.done).length;
+    const pages = weekPages();
+    if (!pages.includes(ui.week)) ui.week = thisMonday();
+    const idx = pages.indexOf(ui.week);
+    return `<section class="screen">
+      <div class="weeks" data-hscroll="weeks" data-pages="${pages.join(',')}" aria-roledescription="carousel" aria-label="Menu per minggu">
+        ${pages.map((w, i) => `<section class="week-page" data-week="${w}" aria-label="${weekLabel(w)}" ${i === idx ? '' : 'aria-hidden="true"'}>${weekPage(w, pages, i)}</section>`).join('')}
+      </div>
+    </section>`;
+  }
+
+  function weekHeader(w, pages, i, actions) {
+    const dots = pages.map((p, k) => `<span class="${k === i ? 'on' : ''}"></span>`).join('');
+    return `<header class="page-head week-head">
+        <div class="week-top">
+          <div class="week-nav">
+            <button type="button" class="icon-btn" data-act="week-go" data-dir="-1" ${i === 0 ? 'disabled' : ''} aria-label="Minggu sebelumnya">${icon('left', 18, 'stroke-width="2.4"')}</button>
+            <p class="eyebrow">${rangeLabel(w)}</p>
+            <button type="button" class="icon-btn" data-act="week-go" data-dir="1" ${i === pages.length - 1 ? 'disabled' : ''} aria-label="Minggu berikutnya">${icon('right', 18, 'stroke-width="2.4"')}</button>
+          </div>
+          <div class="week-actions">${actions}</div>
+        </div>
+        <h1>${weekLabel(w)}</h1>
+        <div class="dots" aria-hidden="true">${dots}</div>
+      </header>`;
+  }
+
+  function weekPage(w, pages, i) {
+    const p = planOf(w);
+    if (!p) return weekEmpty(w, pages, i);
+    const dates = weekDates(w);
+    const ti = todayIndex(w);
+    const cooking = p.days.filter((d) => d.mainId);
+    const done = cooking.filter((d) => d.done).length;
     const cats = buildShopping(planDaysForShopping(p.days));
+    const have = shopOf(w);
     let total = 0, bought = 0;
-    cats.forEach((c) => c.items.forEach((it) => { total++; if (S.shopping[it.id]) bought++; }));
-    const rows = p.days.map((d, i) => {
+    cats.forEach((c) => c.items.forEach((it) => { total++; if (have[it.id]) bought++; }));
+    const rows = p.days.map((d, k) => {
+      const dayCol = `<span class="day-col ${k === ti ? 'today' : ''}"><span class="dn">${DAY_SHORT[k]}</span><span class="dd">${dates[k].getDate()}</span></span><span class="vline" aria-hidden="true"></span>`;
+      if (!d.mainId) {
+        return `<li class="card menu-card empty-row ${k === ti ? 'is-today' : ''}" style="padding:10px 12px;gap:12px">${dayCol}
+          <span class="names"><span class="main" style="color:var(--muted)"><span>Hari kosong</span></span><span class="side">Tidak masak${d.kidId ? '' : ''}</span>${d.kidId ? `<span class="kidline">Anak: ${kidLine(d)}</span>` : ''}</span></li>`;
+      }
       const fav = isFav(d.mainId, d.sideId);
-      return `<li class="card menu-card ${i === ti ? 'is-today' : ''} ${d.done ? 'done' : ''}" style="padding:6px 6px 6px 12px;gap:10px">
-        <button type="button" class="row-link" data-act="open-day" data-i="${i}">
-          <span class="day-col ${i === ti ? 'today' : ''}"><span class="dn">${DAY_SHORT[i]}</span><span class="dd">${dates[i].getDate()}</span></span>
-          <span class="vline" aria-hidden="true"></span>
+      return `<li class="card menu-card ${k === ti ? 'is-today' : ''} ${d.done ? 'done' : ''}" style="padding:6px 6px 6px 12px;gap:10px">
+        <button type="button" class="row-link" data-act="open-day" data-i="${k}" data-week="${w}">
+          ${dayCol}
           <span class="names">
-            ${i === ti ? '<span class="today-tag">Hari ini</span>' : ''}
+            ${k === ti ? '<span class="today-tag">Hari ini</span>' : ''}
             <span class="main"><span>${esc(nameOf(d.mainId))}</span>${starIf(d.mainId)}</span>
-            <span class="side">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>
-            <span class="kidline">Anak: ${d.kidId ? esc(nameOf(d.kidId)) : 'sama'}</span>
+            ${d.sideId ? `<span class="side">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>` : ''}
+            <span class="kidline">Anak: ${kidLine(d)}</span>
           </span>
         </button>
-        <button type="button" class="heart-btn" data-act="fav-day" data-i="${i}" aria-pressed="${fav}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}: ${esc(nameOf(d.mainId))}">${icon('heart')}</button>
-        <button type="button" class="check-btn" data-act="done-day" data-i="${i}" aria-pressed="${!!d.done}" aria-label="${d.done ? 'Batalkan tanda sudah dimasak' : 'Tandai sudah dimasak'}: ${DAY_NAMES[i]}"><span class="ring">${d.done ? icon('check', 16, 'stroke-width="3"') : ''}</span></button>
+        <button type="button" class="heart-btn" data-act="fav-day" data-i="${k}" data-week="${w}" aria-pressed="${fav}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}: ${esc(nameOf(d.mainId))}">${icon('heart')}</button>
+        <button type="button" class="check-btn" data-act="done-day" data-i="${k}" data-week="${w}" aria-pressed="${!!d.done}" aria-label="${d.done ? 'Batalkan tanda sudah dimasak' : 'Tandai sudah dimasak'}: ${DAY_NAMES[k]}"><span class="ring">${d.done ? icon('check', 16, 'stroke-width="3"') : ''}</span></button>
       </li>`;
     }).join('');
-    return `<section class="screen">
-      <header class="page-head">
-        <div><p class="eyebrow">${rangeLabel(p.weekStart)}</p><h1>Minggu Ini</h1></div>
-        <div style="display:flex;gap:8px">
-          ${cloudButton()}
-          <button type="button" class="icon-btn round" data-act="new-plan" aria-label="Buat menu baru">${icon('spark')}</button>
-          <button type="button" class="pill-btn" data-act="reorder">${icon('sort', 18)}Atur</button>
-        </div>
-      </header>
+    const actions = `${cloudButton()}
+          <button type="button" class="icon-btn round" data-act="new-plan" data-week="${w}" aria-label="Buat ulang menu ${weekLabel(w).toLowerCase()}">${icon('spark')}</button>
+          <button type="button" class="pill-btn" data-act="reorder" data-week="${w}">${icon('sort', 18)}Atur</button>`;
+    return `${weekHeader(w, pages, i, actions)}
       <div class="stats">
         <div class="card stat">
           <span class="label">Sudah dimasak</span>
-          <span class="value">${done}<small> / 7</small></span>
-          <div class="bar" role="progressbar" aria-label="Progres memasak" aria-valuemin="0" aria-valuemax="7" aria-valuenow="${done}"><span style="width:${Math.round(done / 7 * 100)}%"></span></div>
+          <span class="value">${done}<small> / ${cooking.length}</small></span>
+          <div class="bar" role="progressbar" aria-label="Progres memasak" aria-valuemin="0" aria-valuemax="${cooking.length}" aria-valuenow="${done}"><span style="width:${cooking.length ? Math.round(done / cooking.length * 100) : 0}%"></span></div>
         </div>
-        <button type="button" class="card stat" data-act="tab" data-tab="shop">
+        <button type="button" class="card stat" data-act="shop-week" data-week="${w}">
           <span class="label">Daftar belanja ${icon('right', 14)}</span>
           <span class="value">${total - bought}<small> lagi</small></span>
           <span class="bar" aria-hidden="true"><span style="width:${total ? Math.round(bought / total * 100) : 0}%"></span></span>
         </button>
       </div>
-      <ul class="scroll list" data-scroll="home" style="padding:14px 16px 16px">${rows}</ul>
-    </section>`;
+      <ul class="scroll list" data-scroll="home-${w}" style="padding:14px 16px 16px">${rows}</ul>`;
   }
 
-  function viewHomeEmpty() {
+  function weekEmpty(w, pages, i) {
+    const n = weekOffset(w);
     const favs = S.favorites.slice(0, 2).map((k) => {
       const [m, s] = k.split('|');
       return `<button type="button" class="card" data-act="open-fav" data-key="${esc(k)}" style="padding:14px;display:flex;flex-direction:column;gap:6px;text-align:left">
@@ -459,43 +574,51 @@
         <span style="font-size:12px;color:var(--muted)">+ ${esc(nameOf(s))}</span>
       </button>`;
     }).join('');
-    return `<section class="screen">
-      <header class="page-head"><div><p class="eyebrow">Minggu depan · ${rangeLabel(iso(upcomingMonday()))}</p><h1>Menu Mingguan</h1></div>${cloudButton()}</header>
-      <div class="scroll" data-scroll="empty">
+    return `${weekHeader(w, pages, i, cloudButton())}
+      <div class="scroll" data-scroll="empty-${w}">
         <section class="card empty">
           <div class="ico">${icon('cal', 26)}</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <h2>Belum ada menu untuk minggu ini</h2>
-            <p>Buat 7 set menu rumahan — satu lauk utama dan satu pendamping per hari, plus menu anak — lengkap dengan daftar belanjanya.</p>
+            <h2>Belum ada menu untuk ${weekLabel(w).toLowerCase()}</h2>
+            <p>${n > 0 ? 'Siapkan dari sekarang: 7 set menu rumahan, menu anak, dan daftar belanjanya.' : 'Buat 7 set menu rumahan — satu lauk utama dan satu pendamping per hari, plus menu anak — lengkap dengan daftar belanjanya.'}</p>
           </div>
           <ol class="steps-mini">
             <li><span>1</span>Pilih 7 set menu yang cocok</li>
             <li><span>2</span>Cek daftar belanja per kategori</li>
             <li><span>3</span>Konfirmasi, lalu mulai masak</li>
           </ol>
-          <button type="button" class="btn primary block" data-act="new-plan">${icon('spark')}Buat Menu 7 Hari</button>
+          <button type="button" class="btn primary block" data-act="new-plan" data-week="${w}">${icon('spark')}${n > 0 ? 'Siapkan Menu ' + weekLabel(w) : 'Buat Menu 7 Hari'}</button>
         </section>
         ${favs ? `<section style="margin:28px 20px 20px;display:flex;flex-direction:column;gap:12px">
           <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="font-size:17px">Dari favoritmu</h2><button type="button" class="text-btn small accent" data-act="tab" data-tab="fav">Lihat semua</button></div>
           <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">${favs}</div>
         </section>` : ''}
-      </div>
-    </section>`;
+        <p class="hint" style="justify-content:center;margin:0 20px 20px">Geser ke kiri atau kanan untuk melihat minggu lain.</p>
+      </div>`;
   }
 
   // Shopping tab ------------------------------------------------------
   function viewShop() {
-    if (!S.plan) {
+    const w = shopWeek();
+    if (!w) {
       return `<section class="screen"><header class="page-head"><div><p class="eyebrow">Belum ada menu</p><h1>Belanja</h1></div></header>
         <div class="card empty"><div class="ico">${icon('bag', 26)}</div><h2>Daftar belanja masih kosong</h2>
-        <p>Daftar belanja dibuat otomatis dari 7 menu yang kamu pilih, dan tetap tersimpan di sini selama seminggu.</p>
-        <button type="button" class="btn primary block" data-act="new-plan">${icon('spark')}Buat Menu 7 Hari</button></div></section>`;
+        <p>Daftar belanja dibuat otomatis dari 7 menu yang kamu pilih, dan tetap tersimpan di sini per minggu.</p>
+        <button type="button" class="btn primary block" data-act="new-plan" data-week="${ui.week}">${icon('spark')}Buat Menu 7 Hari</button></div></section>`;
     }
-    const cats = buildShopping(planDaysForShopping(S.plan.days));
+    const plan = planOf(w);
+    const have = shopOf(w);
+    const cats = buildShopping(planDaysForShopping(plan.days));
     let total = 0, bought = 0;
-    cats.forEach((c) => c.items.forEach((it) => { total++; if (S.shopping[it.id]) bought++; }));
+    cats.forEach((c) => c.items.forEach((it) => { total++; if (have[it.id]) bought++; }));
+    const planned = Object.keys(S.plans).filter((x) => x >= addWeeks(thisMonday(), -1)).sort();
+    const weekChips = planned.length > 1
+      ? `<div class="chips" role="tablist" aria-label="Pilih minggu" style="padding:12px 20px 0">${planned.map((x) =>
+          `<button type="button" role="tab" class="chip week-chip" aria-selected="${x === w}" data-act="shop-week" data-week="${x}" data-stay="1">${weekLabel(x)} <span>${countLeft(x)}</span></button>`).join('')}</div>`
+      : '';
     return `<section class="screen">
-      <header class="page-head"><div><p class="eyebrow">Untuk menu ${rangeLabel(S.plan.weekStart)}</p><h1>Belanja</h1></div></header>
+      <header class="page-head"><div><p class="eyebrow">${weekLabel(w)} · ${rangeLabel(w)}</p><h1>Belanja</h1></div></header>
+      ${weekChips}
       <div class="card" style="margin:14px 20px 0;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
           <b style="font-size:14px">${bought} dari ${total} sudah dibeli</b>
@@ -503,7 +626,7 @@
         </div>
         <div class="bar" role="progressbar" aria-label="Progres belanja" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${bought}"><span style="width:${total ? Math.round(bought / total * 100) : 0}%"></span></div>
       </div>
-      ${shoppingBody(cats, S.shopping, 'shop', ui.shopHide, 'toggle-shop')}
+      ${shoppingBody(cats, have, 'shop', ui.shopHide, 'toggle-shop')}
     </section>`;
   }
 
@@ -714,9 +837,11 @@
           `<li><b>${esc(row.label)}${row.note ? ` <em>· ${esc(row.note)}</em>` : ''}</b><span>${esc(row.qtyText)}</span></li>`).join('')}</ul>
       </div>`;
     }).join('');
-    const sub = r.idea
-      ? `Menu untuk nanti${r.idea.url ? ` · <a href="${esc(r.idea.url)}" target="_blank" rel="noopener">resep asli</a>` : ''}`
-      : `Untuk ${r.servings} porsi${r.type === 'kid' ? ' anak' : ''}`;
+    const sub = r.idea && !isIdea(rid)
+      ? 'Menu pilihanmu sendiri — belum ada resepnya'
+      : r.idea
+        ? `Menu untuk nanti${r.idea.url ? ` · <a href="${esc(r.idea.url)}" target="_blank" rel="noopener">resep asli</a>` : ''}`
+        : `Untuk ${r.servings} porsi${r.type === 'kid' ? ' anak' : ''}`;
     return `<section style="display:flex;flex-direction:column;gap:10px"><h2 class="h2">Bahan · ${esc(r.name)}</h2>
         <p style="font-size:13px;color:var(--muted)">${sub}</p>${groups || '<p class="empty-cat">Belum ada bahan.</p>'}</section>
       <section style="display:flex;flex-direction:column;gap:12px"><h2 class="h2">Langkah memasak</h2>
@@ -734,15 +859,18 @@
 
   function viewDetail() {
     const i = ui.view.day;
-    const d = S.plan.days[i];
-    const date = weekDates(S.plan.weekStart)[i];
-    const ti = todayIndex(S.plan.weekStart);
+    const w = ui.view.week;
+    const plan = planOf(w);
+    if (!plan || !plan.days[i] || !plan.days[i].mainId) { ui.view = null; return viewHome() + tabbar(); }
+    const d = plan.days[i];
+    const date = weekDates(w)[i];
+    const ti = todayIndex(w);
     const fav = isFav(d.mainId, d.sideId);
     const rid = ui.detailTab === 'side' ? d.sideId : ui.detailTab === 'kid' ? d.kidId : d.mainId;
     const totalTime = (R[d.mainId] ? R[d.mainId].timeMinutes : 0);
     return `<section class="screen">
       <header class="nav-head">
-        <button type="button" class="text-btn accent" data-act="back">${icon('left', 22)}Minggu Ini</button>
+        <button type="button" class="text-btn accent" data-act="back">${icon('left', 22)}${weekLabel(w)}</button>
         <button type="button" class="icon-btn" style="border-radius:22px;background:${fav ? 'var(--heart-soft)' : '#fff'};color:var(--heart)" data-act="fav-day" data-i="${i}" aria-pressed="${fav}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" aria-hidden="true">${P.heart}</svg>
         </button>
@@ -796,17 +924,20 @@
   // Reorder -----------------------------------------------------------
   function viewReorder() {
     const order = ui.view.order;
-    const dates = weekDates(S.plan.weekStart);
+    const plan = planOf(ui.view.week);
+    const dates = weekDates(ui.view.week);
     const rows = order.map((d, pos) => `<li class="reorder-row" data-pos="${pos}">
         <span class="day-col"><span class="dn">${DAY_SHORT[pos]}</span><span class="dd">${dates[pos].getDate()}</span></span>
         <span class="card reorder-card ${ui.view.moved === d ? 'moved' : ''}" data-card="${pos}">
           <span class="grip" data-grip="${pos}" aria-hidden="true">${grip}</span>
-          <span class="names"><span class="main"><span>${esc(nameOf(d.mainId))}</span></span><span class="side">+ ${esc(nameOf(d.sideId))}</span></span>
+          <span class="names">${d.mainId
+            ? `<span class="main"><span>${esc(nameOf(d.mainId))}</span></span>${d.sideId ? `<span class="side">+ ${esc(nameOf(d.sideId))}</span>` : ''}`
+            : '<span class="main" style="color:var(--muted)"><span>Hari kosong</span></span>'}</span>
           <button type="button" class="arrow-btn" data-act="move" data-pos="${pos}" data-dir="-1" ${pos === 0 ? 'disabled' : ''} aria-label="Pindah ${esc(nameOf(d.mainId))} ke ${pos ? DAY_NAMES[pos - 1] : ''}">${icon('up', 20, 'stroke-width="2.2"')}</button>
           <button type="button" class="arrow-btn" data-act="move" data-pos="${pos}" data-dir="1" ${pos === 6 ? 'disabled' : ''} aria-label="Pindah ${esc(nameOf(d.mainId))} ke ${pos < 6 ? DAY_NAMES[pos + 1] : ''}">${icon('down', 20, 'stroke-width="2.2"')}</button>
         </span>
       </li>`).join('');
-    const changed = order.some((d, i) => d !== S.plan.days[i]);
+    const changed = order.some((d, i) => d !== plan.days[i]);
     return `<section class="screen">
       <header class="nav-head">
         <button type="button" class="text-btn" data-act="back">Batal</button>
@@ -911,19 +1042,40 @@
     const days = ui.sheet.days;
     const dates = draftDates();
     const favCount = days.filter((d) => favMainIds().includes(d.mainId)).length;
-    const mineCount = days.filter((d) => mainSource(d.mainId) !== 'online').length;
-    const kidSame = days.filter((d) => isKidOk(d.mainId)).length;
+    const mineCount = days.filter((d) => d.mainId && mainSource(d.mainId) !== 'online').length;
+    const cookDays = days.filter((d) => d.mainId).length;
+    const kidStates = days.map(kidState);
+    const kidSame = kidStates.filter((k) => k.kind === 'same').length;
+    const kidOwn = kidStates.filter((k) => k.kind === 'auto' || k.kind === 'pick').length;
     const ideaCount = days.filter((d) => isIdea(d.mainId) || isIdea(d.sideId)).length;
+    const dayCol = (i) => `<span class="day-col"><span class="dn">${DAY_SHORT[i]}</span><span class="dd">${dates[i].getDate()}</span></span><span class="vline" aria-hidden="true"></span>`;
+    const swipeBg = (label) => `<div class="swipe-bg" aria-hidden="true">${icon('trash', 18)}${label}</div>`;
+
     const adult = days.map((d, i) => {
+      if (!d.mainId) {
+        return `<li class="swipe-wrap"><div class="card menu-card stack empty-day">
+          <div class="row">${dayCol(i)}
+            <span class="names"><span class="tag">Hari kosong</span><span class="main" style="color:var(--muted)"><span>Tidak masak hari ini</span></span></span>
+          </div>
+          <div class="chip-row">
+            <button type="button" class="side-btn" data-act="reroll" data-i="${i}"><span>${icon('shuffle', 14)}Acak menu</span></button>
+            <button type="button" class="side-btn" data-act="pick" data-kind="main" data-i="${i}"><span>${icon('search', 14)}Pilih sendiri</span></button>
+          </div>
+        </div></li>`;
+      }
       const m = { id: d.mainId, name: nameOf(d.mainId), source: mainSource(d.mainId) };
       const kid = isKidOk(d.mainId);
-      return `<li class="card menu-card stack">
+      return `<li class="swipe-wrap">${swipeBg('Kosongkan hari')}
+        <div class="card menu-card stack swipe" data-swipe="adult" data-i="${i}">
         <div class="row">
-          <span class="day-col"><span class="dn">${DAY_SHORT[i]}</span><span class="dd">${dates[i].getDate()}</span></span>
-          <span class="vline" aria-hidden="true"></span>
+          ${dayCol(i)}
           <span class="names">
-            <span class="main"><span>${esc(m.name)}</span>${starIf(m.id)}${favMainIds().includes(m.id) ? smallHeart : ''}${m.source === 'online' ? '<span class="badge-online">Online</span>' : ''}</span>
-            <span class="side">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>
+            <button type="button" class="pick-link main" data-act="pick" data-kind="main" data-i="${i}" aria-label="Menu utama ${DAY_NAMES[i]}: ${esc(m.name)}. Ketuk untuk memilih sendiri">
+              <span>${esc(m.name)}</span>${starIf(m.id)}${favMainIds().includes(m.id) ? smallHeart : ''}${m.source === 'online' ? '<span class="badge-online">Online</span>' : ''}<span class="caret" aria-hidden="true">${icon('down', 14, 'stroke-width="2.6"')}</span>
+            </button>
+            <button type="button" class="pick-link side" data-act="pick" data-kind="side" data-i="${i}" aria-label="Pendamping: ${esc(nameOf(d.sideId))}. Ketuk untuk memilih sendiri">
+              + ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}<span class="caret" aria-hidden="true">${icon('down', 12, 'stroke-width="2.6"')}</span>
+            </button>
           </span>
           <button type="button" class="icon-btn soft" data-act="reroll" data-i="${i}" aria-label="Acak ulang menu ${DAY_NAMES[i]}">${icon('refresh')}</button>
         </div>
@@ -934,23 +1086,41 @@
           <button type="button" class="side-btn" data-act="reroll-side" data-i="${i}" aria-label="Ganti pendamping untuk ${esc(m.name)}, sekarang ${esc(nameOf(d.sideId))}">
             <span>${icon('refresh', 14)}Ganti pendamping</span>
           </button>
+          <button type="button" class="sr-only-focusable" data-act="empty-day" data-i="${i}">Kosongkan ${DAY_NAMES[i]}</button>
         </div>
-      </li>`;
+      </div></li>`;
     }).join('');
+
     const kids = days.map((d, i) => {
-      const same = isKidOk(d.mainId);
-      return `<li class="card menu-card ${same ? '' : 'kid-auto'}" style="min-height:66px">
-        <span class="day-col"><span class="dn">${DAY_SHORT[i]}</span><span class="dd">${dates[i].getDate()}</span></span>
-        <span class="vline" aria-hidden="true"></span>
+      const k = kidStates[i];
+      if (k.kind === 'none') {
+        return `<li class="swipe-wrap"><div class="card menu-card stack empty-day">
+          <div class="row">${dayCol(i)}
+            <span class="names"><span class="tag">Tanpa menu anak</span><span class="main" style="color:var(--muted)"><span>Anak tidak dimasakkan</span></span></span>
+          </div>
+          <div class="chip-row">
+            <button type="button" class="side-btn kid" data-act="reroll-kid" data-i="${i}"><span>${icon('shuffle', 14)}Acak menu anak</span></button>
+            <button type="button" class="side-btn kid" data-act="pick" data-kind="kid" data-i="${i}"><span>${icon('search', 14)}Pilih sendiri</span></button>
+          </div>
+        </div></li>`;
+      }
+      const name = k.kind === 'same' ? nameOf(d.mainId) : nameOf(k.id);
+      const tag = { same: 'Ikut menu dewasa', auto: 'Khusus anak', pick: 'Pilihan sendiri' }[k.kind];
+      return `<li class="swipe-wrap">${swipeBg('Tanpa menu anak')}
+        <div class="card menu-card swipe ${k.kind === 'same' ? '' : 'kid-auto'}" data-swipe="kid" data-i="${i}" style="min-height:66px">
+        ${dayCol(i)}
         <span class="names">
-          <span class="tag ${same ? '' : 'kid'}">${same ? 'Ikut menu dewasa' : 'Khusus anak'}</span>
-          <span class="main"><span>${esc(same ? nameOf(d.mainId) : nameOf(d.kidMenuId))}</span></span>
+          <span class="tag ${k.kind === 'same' ? '' : 'kid'}">${tag}</span>
+          <button type="button" class="pick-link main" data-act="pick" data-kind="kid" data-i="${i}" aria-label="Menu anak ${DAY_NAMES[i]}: ${esc(name)}. Ketuk untuk memilih sendiri">
+            <span>${esc(name)}</span><span class="caret" aria-hidden="true">${icon('down', 14, 'stroke-width="2.6"')}</span>
+          </button>
         </span>
-        ${same ? '' : `<button type="button" class="icon-btn kid" data-act="reroll-kid" data-i="${i}" aria-label="Acak ulang menu anak ${DAY_NAMES[i]}">${icon('refresh')}</button>`}
-      </li>`;
+        ${k.kind === 'same' ? '' : `<button type="button" class="icon-btn kid" data-act="reroll-kid" data-i="${i}" aria-label="Acak ulang menu anak ${DAY_NAMES[i]}">${icon('refresh')}</button>`}
+        <button type="button" class="sr-only-focusable" data-act="empty-kid" data-i="${i}">Tanpa menu anak ${DAY_NAMES[i]}</button>
+      </div></li>`;
     }).join('');
     return `<div class="sheet-body" data-scroll="step1">
-      <div class="intro"><p class="kicker">Langkah 1 · Pilih menu</p><p>Acak ulang yang belum cocok, lalu tandai menu yang aman untuk anak.</p></div>
+      <div class="intro"><p class="kicker">Langkah 1 · ${weekLabel(ui.sheet.weekStart)}</p><p>Acak ulang yang belum cocok, ketuk nama menu untuk memilih sendiri, atau <b>geser kartu ke kiri</b> untuk mengosongkan hari itu.</p></div>
       <div class="note">${icon('book', 18, 'style="flex-shrink:0;color:var(--accent)"')}<span><strong>Dari koleksi menumu</strong>${MAINS.filter((m) => m.source === 'user').length} menu utama + ${SIDES.length} pendamping milikmu, ditambah ${MAINS.filter((m) => m.source === 'online').length} resep online. Minggu ini ${mineCount} dari 7 menu dari koleksimu.</span></div>
       <button type="button" class="switch-row" role="switch" aria-checked="${S.preferFav}" data-act="prefer-fav">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--heart)" stroke="var(--heart)" stroke-width="2" aria-hidden="true" style="flex-shrink:0">${P.heart}</svg>
@@ -966,7 +1136,7 @@
       <ul class="list">${adult}</ul>
       <div class="intro" style="margin-top:10px">
         <div class="section-head" style="padding:0"><h2 class="kid">${icon('kid')}Menu Anak</h2></div>
-        <p style="font-size:13px">${kidSame} hari ikut menu dewasa yang ramah anak · ${7 - kidSame} hari dibuatkan 1 menu utama khusus anak.</p>
+        <p style="font-size:13px">${kidSame} hari ikut menu dewasa · ${kidOwn} hari menu khusus anak${7 - kidSame - kidOwn ? ` · ${7 - kidSame - kidOwn} hari tanpa menu anak` : ''}.</p>
       </div>
       <ul class="list">${kids}</ul>
     </div>`;
@@ -993,30 +1163,128 @@
     const cats = buildShopping(draftForShopping());
     let need = 0;
     cats.forEach((c) => c.items.forEach((it) => { if (!ui.sheet.have[it.id]) need++; }));
-    const kidAuto = days.filter((d) => !isKidOk(d.mainId)).length;
+    const kidAuto = days.filter((d) => { const k = kidState(d).kind; return k === 'auto' || k === 'pick'; }).length;
+    const cookDays = days.filter((d) => d.mainId).length;
     return `<div class="sheet-body" data-scroll="step3">
-      <div class="intro"><p class="kicker">Langkah 3 · Konfirmasi</p><h2>Siap untuk minggu depan?</h2></div>
+      <div class="intro"><p class="kicker">Langkah 3 · Konfirmasi</p><h2>Siap untuk ${weekLabel(ui.sheet.weekStart).toLowerCase()}?</h2></div>
       <div class="summary">
         <div class="range">${icon('cal', 18)}${DAY_NAMES[0]}, ${dates[0].getDate()} ${MONTHS[dates[0].getMonth()]} – ${DAY_NAMES[6]}, ${dates[6].getDate()} ${MONTHS[dates[6].getMonth()]} ${dates[6].getFullYear()}</div>
         <div class="nums">
-          <div><b>7</b><span>set menu dewasa</span></div>
+          <div><b>${cookDays}</b><span>set menu dewasa</span></div>
           <div><b>${kidAuto}</b><span>menu khusus anak</span></div>
           <div><b>${need}</b><span>bahan perlu dibeli</span></div>
         </div>
       </div>
       <ul class="card plain-list">${days.map((d, i) => `<li>
         <span class="d">${DAY_LABEL[i]} ${dates[i].getDate()}</span>
-        <span class="names"><span class="main" style="font-size:14px"><span>${esc(nameOf(d.mainId))}</span>${starIf(d.mainId)}</span>
-        <span class="side" style="font-size:12px">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>
-        <span class="kidline">Anak: ${isKidOk(d.mainId) ? 'ikut menu dewasa' : esc(nameOf(d.kidMenuId))}</span></span>
+        <span class="names">${d.mainId
+          ? `<span class="main" style="font-size:14px"><span>${esc(nameOf(d.mainId))}</span>${starIf(d.mainId)}</span>
+        <span class="side" style="font-size:12px">+ ${esc(nameOf(d.sideId))} ${starIf(d.sideId, 12)}</span>`
+          : '<span class="main" style="font-size:14px;color:var(--muted)"><span>Hari kosong</span></span>'}
+        <span class="kidline">Anak: ${(() => { const k = kidState(d); return k.kind === 'none' ? 'tidak ada' : k.kind === 'same' ? 'ikut menu dewasa' : esc(nameOf(k.id)); })()}</span></span>
       </li>`).join('')}</ul>
       <p class="hint">${icon('info', 18, 'style="flex-shrink:0"')}<span>Urutan hari masih bisa diatur ulang dari Beranda, dan daftar belanja tetap tersimpan di tab Belanja selama seminggu.</span></p>
     </div>`;
   }
 
+  // "Pilih sendiri" picker (step 1) -------------------------------------------
+  function viewPicker() {
+    const pk = ui.picker;
+    const d = ui.sheet.days[pk.day];
+    const q = pk.query.trim().toLowerCase();
+    const match = (name) => !q || name.toLowerCase().includes(q);
+    const current = pk.kind === 'main' ? d.mainId : pk.kind === 'side' ? d.sideId : kidIdFor(d);
+    const customs = (S.customMenus || []).filter((c) => (c.kind || 'main') === pk.kind || (pk.kind === 'kid' && (c.kind || 'main') === 'main'));
+    let groups;
+    if (pk.kind === 'main') {
+      groups = [
+        ['★ Untuk nanti', (S.ideas || []).filter((x) => x.type !== 'side').map((x) => [x.id, x.name, true])],
+        ['Koleksi menumu', MAINS.filter((m) => m.source === 'user').map((m) => [m.id, m.name])],
+        ['Resep online', MAINS.filter((m) => m.source === 'online').map((m) => [m.id, m.name])],
+        ['Menu tambahanmu', customs.map((c) => [c.id, c.name])]
+      ];
+    } else if (pk.kind === 'side') {
+      groups = [
+        ['★ Untuk nanti', (S.ideas || []).filter((x) => x.type === 'side').map((x) => [x.id, x.name, true])],
+        ['Pendamping koleksimu', SIDES.map((s) => [s.id, s.name])],
+        ['Menu tambahanmu', customs.map((c) => [c.id, c.name])]
+      ];
+    } else {
+      groups = [
+        ['Menu anak', KIDS.map((k) => [k.id, k.name])],
+        ['Menu dewasa yang ramah anak', MAINS.filter((m) => isKidOk(m.id)).map((m) => [m.id, m.name])
+          .concat((S.ideas || []).filter((x) => x.kidFriendly && x.type !== 'side').map((x) => [x.id, x.name, true]))],
+        ['Menu tambahanmu', customs.map((c) => [c.id, c.name])]
+      ];
+    }
+    const exact = groups.some(([, items]) => items.some(([, n]) => n.toLowerCase() === q));
+    const list = groups.map(([title, items]) => {
+      const rows = items.filter(([, n]) => match(n));
+      if (!rows.length) return '';
+      return `<section class="pick-group"><h3>${title}</h3><ul class="card">${rows.map(([id, n, isStar]) =>
+        `<li><button type="button" class="pick-row" data-act="pick-choose" data-id="${esc(id)}" aria-current="${id === current}">
+          <span>${esc(n)}</span>${isStar ? star(14) : ''}${id === current ? `<span class="tick">${icon('check', 18, 'stroke-width="2.6"')}</span>` : ''}
+        </button></li>`).join('')}</ul></section>`;
+    }).join('');
+    const label = { main: 'menu utama', side: 'pendamping', kid: 'menu anak' }[pk.kind];
+    return `<div class="sheet-wrap picker-wrap${pk.fresh ? ' anim' : ''}"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+      <div class="grabber" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <button type="button" class="icon-btn" data-act="picker-close" aria-label="Tutup">${icon('x', 22, 'stroke-width="2.2"')}</button>
+        <h1 id="picker-title">Pilih ${label} · ${DAY_NAMES[pk.day]}</h1>
+        <span class="step"></span>
+      </div>
+      <div style="padding:10px 16px 6px">
+        <label for="picker-q" class="sr-only">Cari ${label}</label>
+        <div class="search">${icon('search', 18)}<input id="picker-q" type="search" autocomplete="off" placeholder="Cari atau ketik nama ${label}…" value="${esc(pk.query)}" data-act="picker-search" data-keep-focus="picker"></div>
+      </div>
+      <div class="sheet-body" data-scroll="picker" style="padding-top:6px">
+        ${q && !exact ? `<button type="button" class="card option" data-act="pick-custom"><span class="ico">${icon('plus', 22)}</span><span class="txt"><b>Pakai “${esc(pk.query.trim())}”</b><small>Tambahkan sebagai ${label} baru (tanpa resep)</small></span></button>` : ''}
+        ${list || (q ? '' : '<p class="empty-cat">Belum ada pilihan.</p>')}
+      </div>
+    </section></div>`;
+  }
+  function choosePicked(id) {
+    const pk = ui.picker;
+    const days = ui.sheet.days;
+    const d = Object.assign({}, days[pk.day]);
+    if (pk.kind === 'main') {
+      d.mainId = id;
+      if (!d.sideId) {
+        const used = days.filter((_, k) => k !== pk.day).map((x) => x.sideId);
+        d.sideId = uniqueSide(MAIN[id] ? MAIN[id].defaultSideId : pick(SIDES).id, used);
+      }
+    } else if (pk.kind === 'side') {
+      d.sideId = id;
+    } else {
+      d.kidMode = 'pick';
+      d.kidPickId = id;
+    }
+    days[pk.day] = d;
+    ui.picker = null;
+    render();
+  }
+  function emptyDay(i, kind) {
+    const days = ui.sheet.days;
+    const prev = days[i];
+    days[i] = kind === 'kid'
+      ? Object.assign({}, prev, { kidMode: 'none' })
+      : Object.assign({}, prev, { mainId: null, sideId: null });
+    ui.undoFn = () => { ui.sheet.days[i] = prev; };
+    toast(kind === 'kid' ? `Menu anak ${DAY_NAMES[i]} dikosongkan` : `${DAY_NAMES[i]} dikosongkan`, true);
+  }
+
   // ---------- Actions ----------
-  function openSheet() {
-    ui.sheet = { step: 1, weekStart: iso(upcomingMonday()), days: generateDays(), have: {}, fresh: true };
+  function openSheet(week) {
+    ui.sheet = { step: 1, weekStart: week, days: generateDays(), have: {}, fresh: true };
+    render();
+  }
+  const anyPlanUses = (id) => Object.values(S.plans).some((p) => p.days.some((d) => d.mainId === id || d.sideId === id || d.kidId === id));
+  function goWeek(dir) {
+    const pages = weekPages();
+    const i = Math.max(0, Math.min(pages.length - 1, pages.indexOf(ui.week) + dir));
+    ui.week = pages[i];
+    ui.scrollToWeek = true;
     render();
   }
 
@@ -1091,8 +1359,8 @@
     },
     'idea-delete': (el) => {
       const id = el.dataset.id;
-      if (S.plan && S.plan.days.some((d) => d.mainId === id || d.sideId === id)) {
-        toast('Menu ini dipakai minggu ini, hapus setelah minggu selesai');
+      if (anyPlanUses(id)) {
+        toast('Menu ini masih dipakai di menu mingguan, hapus setelah minggunya selesai');
         return;
       }
       if (!window.confirm('Hapus menu ini dari daftar Untuk nanti?')) return;
@@ -1117,7 +1385,7 @@
       if (code.replace(/-/g, '').length < 20) { toast('Kode harus 20 huruf/angka'); return; }
       window.MenuSync.fetch(code).then((remote) => {
         if (!remote) { toast('Kode tidak ditemukan'); return; }
-        if (S.plan && !window.confirm('Menu dan daftar belanja di device ini akan diganti dengan data keluarga. Lanjutkan?')) return;
+        if (Object.keys(S.plans).length && !window.confirm('Menu dan daftar belanja di device ini akan diganti dengan data keluarga. Lanjutkan?')) return;
         setSyncCode(code);
         replaceState(remote);
         save({ remote: true });
@@ -1147,10 +1415,13 @@
       sync.status = 'off';
       render();
     },
-    'new-plan': () => {
-      if (S.plan && !window.confirm('Buat menu baru? Menu dan daftar belanja minggu ini akan diganti.')) return;
-      openSheet();
+    'new-plan': (el) => {
+      const week = el.dataset.week || ui.week;
+      if (planOf(week) && !window.confirm(`Buat ulang menu ${weekLabel(week).toLowerCase()}? Menu dan daftar belanjanya akan diganti.`)) return;
+      openSheet(week);
     },
+    'week-go': (el) => goWeek(+el.dataset.dir),
+    'shop-week': (el) => { ui.week = el.dataset.week; ui.tab = 'shop'; ui.view = null; render(); },
     'close-sheet': () => { ui.sheet = null; render(); },
     'sheet-back': () => { ui.sheet.step = Math.max(1, ui.sheet.step - 1); render(); },
     'sheet-next': () => {
@@ -1164,7 +1435,35 @@
       render();
     },
     'reroll': (el) => { rerollDay(ui.sheet.days, +el.dataset.i); render(); },
-    'reroll-kid': (el) => { rerollKid(ui.sheet.days, +el.dataset.i); render(); },
+    'reroll-kid': (el) => {
+      const i = +el.dataset.i;
+      ui.sheet.days[i] = Object.assign({}, ui.sheet.days[i], { kidMode: 'auto', kidPickId: null });
+      if (kidState(ui.sheet.days[i]).kind === 'same') {
+        // Adult menu is kid-friendly: "acak" still gives the kids their own random menu.
+        ui.sheet.days[i].kidMode = 'pick';
+        ui.sheet.days[i].kidPickId = freshKid(ui.sheet.days.map((x) => kidIdFor(x)).filter(Boolean));
+      } else {
+        rerollKid(ui.sheet.days, i);
+      }
+      render();
+    },
+    'pick': (el) => { ui.picker = { kind: el.dataset.kind, day: +el.dataset.i, query: '', fresh: true }; render(); ui.picker.fresh = false; },
+    'picker-close': () => { ui.picker = null; render(); },
+    'pick-choose': (el) => choosePicked(el.dataset.id),
+    'pick-custom': () => {
+      const name = ui.picker.query.trim();
+      if (!name) return;
+      S.customMenus = S.customMenus || [];
+      let c = S.customMenus.find((x) => x.name.toLowerCase() === name.toLowerCase() && (x.kind || 'main') === ui.picker.kind);
+      if (!c) {
+        c = { id: 'custom-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: name.charAt(0).toUpperCase() + name.slice(1), kind: ui.picker.kind };
+        S.customMenus.push(c);
+        save();
+      }
+      choosePicked(c.id);
+    },
+    'empty-day': (el) => emptyDay(+el.dataset.i, 'adult'),
+    'empty-kid': (el) => emptyDay(+el.dataset.i, 'kid'),
     'reroll-side': (el) => { rerollSide(ui.sheet.days, +el.dataset.i); render(); },
     'expand': (el) => { const k = el.dataset.key; ui.expanded[k] = !ui.expanded[k]; render(); },
     'shuffle-all': () => { ui.sheet.days = generateDays(); render(); },
@@ -1188,19 +1487,19 @@
       buildShopping(draftForShopping()).forEach((c) => c.items.forEach((it) => {
         if (sh.have[it.id]) shopping[it.id] = true;
       }));
-      S.plan = { weekStart: sh.weekStart, days: sh.days.map((d) => ({ mainId: d.mainId, sideId: d.sideId, kidId: kidIdFor(d), done: false })) };
-      S.shopping = shopping;
+      S.plans[sh.weekStart] = { weekStart: sh.weekStart, days: sh.days.map((d) => ({ mainId: d.mainId, sideId: d.mainId ? d.sideId : null, kidId: kidIdFor(d), done: false })) };
+      S.shoppingByWeek[sh.weekStart] = shopping;
       save();
-      ui.sheet = null; ui.tab = 'home'; ui.view = null;
-      toast('Menu minggu ini tersimpan');
+      ui.sheet = null; ui.tab = 'home'; ui.view = null; ui.week = sh.weekStart; ui.scrollToWeek = true;
+      toast(`Menu ${weekLabel(sh.weekStart).toLowerCase()} tersimpan`);
     },
-    'open-day': (el) => { ui.view = { type: 'detail', day: +el.dataset.i }; ui.detailTab = 'main'; render(); },
+    'open-day': (el) => { ui.view = { type: 'detail', day: +el.dataset.i, week: el.dataset.week || ui.week }; ui.week = ui.view.week; ui.detailTab = 'main'; render(); },
     'open-fav': (el) => { ui.view = { type: 'fav', key: el.dataset.key }; ui.detailTab = 'main'; render(); },
     'back': () => { ui.view = null; render(); },
     'detail-tab': (el) => { ui.detailTab = el.dataset.tab; render(); },
-    'done-day': (el) => { const d = S.plan.days[+el.dataset.i]; d.done = !d.done; save(); render(); },
+    'done-day': (el) => { const d = planOf(el.dataset.week || ui.week).days[+el.dataset.i]; d.done = !d.done; save(); render(); },
     'fav-day': (el) => {
-      const d = S.plan.days[+el.dataset.i];
+      const d = planOf(el.dataset.week || ui.week).days[+el.dataset.i];
       const k = favKey(d.mainId, d.sideId);
       const had = S.favorites.includes(k);
       S.favorites = had ? S.favorites.filter((x) => x !== k) : [k].concat(S.favorites);
@@ -1222,6 +1521,7 @@
       toast('Dihapus dari favorit', true);
     },
     'undo': () => {
+      if (ui.undoFn) { const fn = ui.undoFn; ui.undoFn = null; ui.toast = null; fn(); render(); return; }
       if (ui.lastRemoved && !S.favorites.includes(ui.lastRemoved.k)) {
         S.favorites.splice(ui.lastRemoved.idx, 0, ui.lastRemoved.k);
         save();
@@ -1230,10 +1530,10 @@
     },
     'shop-hide': () => { ui.shopHide = !ui.shopHide; render(); },
     'jump': (el) => { const t = document.getElementById(el.dataset.target); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
-    'reorder': () => { ui.view = { type: 'reorder', order: S.plan.days.slice(), moved: null }; render(); },
+    'reorder': (el) => { const w = el.dataset.week || ui.week; ui.view = { type: 'reorder', week: w, order: planOf(w).days.slice(), moved: null }; render(); },
     'move': (el) => { moveItem(+el.dataset.pos, +el.dataset.pos + +el.dataset.dir); },
-    'reset-order': () => { ui.view.order = S.plan.days.slice(); ui.view.moved = null; render(); },
-    'save-order': () => { S.plan.days = ui.view.order.slice(); save(); ui.view = null; toast('Urutan menu diperbarui'); }
+    'reset-order': () => { ui.view.order = planOf(ui.view.week).days.slice(); ui.view.moved = null; render(); },
+    'save-order': () => { planOf(ui.view.week).days = ui.view.order.slice(); save(); ui.view = null; toast('Urutan menu diperbarui'); }
   };
 
   // ----- Untuk nanti helpers -----
@@ -1302,7 +1602,7 @@
   });
   app.addEventListener('change', (e) => {
     const el = e.target;
-    if (el.dataset.act === 'toggle-shop') { S.shopping[el.dataset.id] = el.checked; save(); render(); }
+    if (el.dataset.act === 'toggle-shop') { shopOf(shopWeek())[el.dataset.id] = el.checked; save(); render(); }
     if (el.dataset.act === 'toggle-have') { ui.sheet.have[el.dataset.id] = el.checked; render(); }
   });
   app.addEventListener('input', (e) => {
@@ -1314,7 +1614,53 @@
       const again = document.getElementById('cari');
       if (again) { again.focus(); again.setSelectionRange(pos, pos); }
     }
+    if (el.dataset.act === 'picker-search' && ui.picker) { ui.picker.query = el.value; render(); }
   });
+
+  // Swipe a step-1 card to the left to empty that day (adult menu or kids menu).
+  let swipe = null;
+  let suppressClick = false;
+  const SWIPE_AT = 90;
+  app.addEventListener('pointerdown', (e) => {
+    const card = e.target.closest('[data-swipe]');
+    if (!card || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    swipe = { card, wrap: card.parentElement, x0: e.clientX, y0: e.clientY, dx: 0, active: false, id: e.pointerId };
+  });
+  app.addEventListener('pointermove', (e) => {
+    if (!swipe || e.pointerId !== swipe.id) return;
+    const dx = e.clientX - swipe.x0;
+    const dy = e.clientY - swipe.y0;
+    if (!swipe.active) {
+      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+        swipe.active = true;
+        try { swipe.card.setPointerCapture(swipe.id); } catch (err) { /* ignore */ }
+        swipe.card.classList.add('swiping');
+      } else if (Math.abs(dy) > 12) { swipe = null; return; } else return;
+    }
+    swipe.dx = Math.min(0, dx);
+    swipe.card.style.transform = `translateX(${swipe.dx}px)`;
+    swipe.wrap.classList.toggle('armed', swipe.dx < -SWIPE_AT);
+  });
+  function endSwipe() {
+    if (!swipe) return;
+    const s = swipe;
+    swipe = null;
+    if (!s.active) return;
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 50);
+    s.card.classList.remove('swiping');
+    if (s.dx < -SWIPE_AT) {
+      s.card.style.transform = 'translateX(-110%)';
+      setTimeout(() => emptyDay(+s.card.dataset.i, s.card.dataset.swipe), 160);
+    } else {
+      s.card.style.transform = '';
+      s.wrap.classList.remove('armed');
+    }
+  }
+  app.addEventListener('pointerup', endSwipe);
+  app.addEventListener('pointercancel', endSwipe);
+  // A swipe must not also count as a tap on the menu name / buttons underneath.
+  app.addEventListener('click', (e) => { if (suppressClick) { e.stopPropagation(); e.preventDefault(); suppressClick = false; } }, true);
 
   // Drag to reorder (pointer events on the grip handle)
   let drag = null;
